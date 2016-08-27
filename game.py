@@ -10,10 +10,6 @@ def get_asset_file(filename):
     return os.path.join(ASSETS_FOLDER, filename)
 
 
-class Grid:
-    BLOCK_SIZE = 32
-
-
 class Color:
     STEEL_BLUE = (95, 158, 160)
     BLACK = (0, 0, 0)
@@ -125,14 +121,10 @@ class Player:
     def AABB(self):
         return self.__aabbb
 
-    def move(self, direction, speed):
-        self.__aabb.x += direction[0]*speed[0]
-        self.__aabb.y += direction[1]*speed[1]
-
     def interact(self, object):
         pass
 
-    def update(self):
+    def update(self, level):
 
         moving_vector = [0, 0]
         if self.moving_left:
@@ -144,17 +136,31 @@ class Player:
         if self.moving_down:
             moving_vector[1] += 1
 
-        self.move(moving_vector, self.__speed)
-
         is_moving = moving_vector[0] != 0 or moving_vector[1] != 0
 
         if is_moving:
-            # sprite_shift_coeff = 1 if self.__is_running else 0.5
             if self.__sprite_shift_counter > 10:
                 self.__sprite_index = (self.__sprite_index + 1) % 4
                 self.__sprite_shift_counter = 0
             self.__sprite_shift_counter += 1
+            dx = moving_vector[0]*self.__speed[0]
+            dy = moving_vector[1]*self.__speed[1]
+            self.__aabb.x += dx
+            for blocker in level.blockers:
+                if self.__aabb.colliderect(blocker):
+                    self.__aabb.x -= dx
 
+            self.__aabb.y += dy
+            for blocker in level.blockers:
+                if self.__aabb.colliderect(blocker):
+                    self.__aabb.y -= dy
+
+            if self.__aabb.colliderect(level.entrance):
+                return 'prev_level'
+            elif self.__aabb.colliderect(level.exit):
+                return 'next_level'
+
+            return None
         else:
             self.__sprite_index = 0
 
@@ -170,11 +176,14 @@ def run_game():
     # clock for keeping track of time, ticks, and frames per second
     clock = pygame.time.Clock()
 
-    tile_renderer = Renderer(get_asset_file('demo.tmx'))
-    map_surface = tile_renderer.make_map()
+    levels = [get_asset_file('level1.tmx'), get_asset_file('level2.tmx')]
+    level_index = 0
+
+    current_level = Level(levels[level_index], prev_level=True)
+    map_surface = current_level.make_map()
     map_rect = map_surface.get_rect()
 
-    player = Player((400, 300), 'player_main')
+    player = Player((current_level.spawn_location.x, current_level.spawn_location.y), 'player_main')
 
     done = False
     while not done:
@@ -233,17 +242,72 @@ def run_game():
                 if event.key == pygame.K_LSHIFT:
                     player.is_running = False
 
-        player.update()
+        transition = player.update(current_level)
+        if transition:
+            level_index = (level_index - 1) if transition == 'prev_level' else (level_index + 1)
+            if level_index < 0:
+                print('beginning')
+                done = True
+            elif level_index == len(levels):
+                print('end')
+                done = True
+            else:
+                current_level = Level(levels[level_index], prev_level=True)
+                map_surface = current_level.make_map()
+                map_rect = map_surface.get_rect()
+
+                player = Player((current_level.spawn_location.x, current_level.spawn_location.y), 'player_main')
 
     # shuts down all pygame modules - IDLE friendly
     pygame.quit()
 
 
-class Renderer(object):
-    def __init__(self, filename):
+class Level:
+    def __init__(self, filename, prev_level):
         tm = pytmx.load_pygame(filename, pixelalpha=True)
         self.size = tm.width * tm.tilewidth, tm.height * tm.tileheight
         self.tmx_data = tm
+        self.blockers = []
+        self.spawn_location = None
+        self._prev_level = prev_level
+        self.entrance = None
+        self.exit = None
+        self._load_game_objects()
+
+    def _load_game_objects(self):
+        for layer in self.tmx_data.visible_layers:
+            if isinstance(layer, pytmx.TiledTileLayer):
+                for x, y, gid in layer:
+                    tile_props = self.tmx_data.get_tile_properties_by_gid(gid)
+                    if tile_props and 'passable' in tile_props and tile_props['passable'] == 'false':
+                        self.blockers.append(
+                            pygame.Rect(
+                                x * self.tmx_data.tilewidth,
+                                y * self.tmx_data.tileheight,
+                                int(tile_props['height']),
+                                int(tile_props['width'])
+                            )
+                        )
+            if isinstance(layer, pytmx.TiledObjectGroup):
+                for tile_object in layer:
+                    if 'spawn' in tile_object.properties:
+                        if self._prev_level:
+                            if tile_object.properties['spawn'] == 'prev_room':
+                                self.spawn_location = self.__create_rect_from_tile_object(tile_object)
+                        else:
+                            if tile_object.properties['spawn'] == 'next_room':
+                                self.spawn_location = self.__create_rect_from_tWWile_object(tile_object)
+                    if 'exit' in tile_object.properties:
+                        # colliding with the entrance will take you to the previous room
+                        if tile_object.properties['exit'] == 'prev_room':
+                            self.entrance = self.__create_rect_from_tile_object(tile_object)
+                        # colliding with the exit will take you to the next room
+                        elif tile_object.properties['exit'] == 'next_room':
+                            self.exit = self.__create_rect_from_tile_object(tile_object)
+
+
+    def __create_rect_from_tile_object(self, tile_object):
+        return pygame.Rect(tile_object.x, tile_object.y, tile_object.width, tile_object.height)
 
     def render(self, surface):
 

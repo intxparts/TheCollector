@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="left-down" width="20" height="15" tilewidth="40" tileheight="40" nextobjectid="5">
+ <tileset firstgid="1" name="ancienttech" tilewidth="40" tileheight="40" tilecount="8" columns="0">
+  <tile id="1">
+   <image width="40" height="40" source="floor1.png"/>
+  </tile>
+  <tile id="2">
+   <image width="40" height="40" source="wall_block.png"/>
+  </tile>
+  <tile id="3">
+   <image width="40" height="40" source="exit.png"/>
+  </tile>
+  <tile id="4">
+   <image width="40" height="40" source="exit_left.png"/>
+  </tile>
+  <tile id="5">
+   <image width="40" height="40" source="exit_right.png"/>
+  </tile>
+  <tile id="6">
+   <image width="40" height="40" source="start.png"/>
+  </tile>
+  <tile id="7">
+   <image width="40" height="40" source="exit_left_reverse.png"/>
+  </tile>
+  <tile id="8">
+   <image width="40" height="40" source="exit_right_reverse.png"/>
+  </tile>
+ </tileset>
+ <layer name="Tile Layer 1" width="20" height="15">
+  <data encoding="csv">
+0,0,0,0,0,0,0,3,3,5,6,3,3,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,3,3,8,9,3,3,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup name="Object Layer 1">
+  <object id="1" gid="7" x="379.75" y="560" width="40" height="40">
+   <properties>
+    <property name="spawn" value="prev_room"/>
+   </properties>
+  </object>
+  <object id="2" gid="7" x="378.75" y="80.25" width="40" height="40">
+   <properties>
+    <property name="spawn" value="next_room"/>
+   </properties>
+  </object>
+  <object id="3" gid="4" x="378.75" y="40" width="40" height="40">
+   <properties>
+    <property name="exit" value="next_room"/>
+   </properties>
+  </object>
+  <object id="4" gid="4" x="380" y="600" width="40" height="40">
+   <properties>
+    <property name="exit" value="prev_room"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>
