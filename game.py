@@ -10,9 +10,6 @@ def get_asset_file(filename):
     return os.path.join(ASSETS_FOLDER, filename)
 
 
-level_data = pytmx.TiledMap(get_asset_file('demo.tmx'))
-
-
 class Grid:
     BLOCK_SIZE = 32
 
@@ -41,9 +38,9 @@ class Player:
     SPRITE_RIGHT_WALK2 = pygame.image.load(get_asset_file('char_right_walk2.png'))
 
     def __init__(self, position, id):
-        self.__sprite = pygame.Surface((32, 36))
-        self.__sprite.fill(Color.STEEL_BLUE)
-        self.__aabb = self.__sprite.get_rect()
+        self.__aabb_sprite = pygame.Surface((28, 36))
+        self.__aabb_sprite.fill(Color.STEEL_BLUE)
+        self.__aabb = self.__aabb_sprite.get_rect()
         self.__aabb.x = position[0]
         self.__aabb.y = position[1]
         self.__id = id
@@ -113,8 +110,8 @@ class Player:
         self.__moving_down = value
 
     @property
-    def sprite(self):
-        return self.__sprite
+    def aabb_sprite(self):
+        return self.__aabb_sprite
 
     @property
     def current_sprite(self):
@@ -137,9 +134,6 @@ class Player:
 
     def update(self):
 
-        if self.__sprite_shift_counter > 10:
-            self.__sprite_index = (self.__sprite_index + 1) % 4
-
         moving_vector = [0, 0]
         if self.moving_left:
             moving_vector[0] -= 1
@@ -151,74 +145,134 @@ class Player:
             moving_vector[1] += 1
 
         self.move(moving_vector, self.__speed)
-        self.__sprite_shift_counter += 1
 
-# initialize the display for drawing to the screen
-pygame.display.init()
-display = pygame.display.set_mode([800, 600], pygame.DOUBLEBUF, 32)
+        is_moving = moving_vector[0] != 0 or moving_vector[1] != 0
 
-# initialize the mixer for sound to work
-pygame.mixer.init()
+        if is_moving:
+            # sprite_shift_coeff = 1 if self.__is_running else 0.5
+            if self.__sprite_shift_counter > 10:
+                self.__sprite_index = (self.__sprite_index + 1) % 4
+                self.__sprite_shift_counter = 0
+            self.__sprite_shift_counter += 1
 
-# clock for keeping track of time, ticks, and frames per second
-clock = pygame.time.Clock()
+        else:
+            self.__sprite_index = 0
 
-player = Player((400, 300), 'player_main')
 
-done = False
-while not done:
-    clock.tick(120)
-    display.fill(Color.BLACK)
-    display.blit(player.sprite, player.position)
-    display.blit(player.current_sprite, player.position)
-    pygame.display.flip()
+def run_game():
+    # initialize the display for drawing to the screen
+    pygame.display.init()
+    display = pygame.display.set_mode([800, 600], pygame.DOUBLEBUF, 32)
 
-    events = pygame.event.get()
+    # initialize the mixer for sound to work
+    pygame.mixer.init()
 
-    # handle input
-    for event in events:
-        # handle clicking the X on the game window
-        if event.type == pygame.QUIT:
-            print('received a quit request')
-            done = True
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
+    # clock for keeping track of time, ticks, and frames per second
+    clock = pygame.time.Clock()
+
+    tile_renderer = Renderer(get_asset_file('demo.tmx'))
+    map_surface = tile_renderer.make_map()
+    map_rect = map_surface.get_rect()
+
+    player = Player((400, 300), 'player_main')
+
+    done = False
+    while not done:
+        clock.tick(60)
+        display.fill(Color.BLACK)
+        display.blit(map_surface, map_rect)
+
+        # debug purposes
+        display.blit(player.aabb_sprite, player.position)
+
+        display.blit(player.current_sprite, player.position)
+        pygame.display.flip()
+
+        events = pygame.event.get()
+
+        # handle input
+        for event in events:
+            # handle clicking the X on the game window
+            if event.type == pygame.QUIT:
+                print('received a quit request')
                 done = True
-            if event.key == pygame.K_w:
-                print('moving up')
-                player.moving_up = True
-            if event.key == pygame.K_s:
-                print('moving down')
-                player.moving_down = True
-            if event.key == pygame.K_a:
-                print('moving left')
-                player.moving_left = True
-            if event.key == pygame.K_d:
-                print('moving right')
-                player.moving_right = True
-            if event.key == pygame.K_LSHIFT:
-                player.is_running = True
-            if event.key == pygame.K_e:
-                player.interact('nothing')
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    done = True
+                if event.key == pygame.K_w:
+                    print('moving up')
+                    player.moving_up = True
+                if event.key == pygame.K_s:
+                    print('moving down')
+                    player.moving_down = True
+                if event.key == pygame.K_a:
+                    print('moving left')
+                    player.moving_left = True
+                if event.key == pygame.K_d:
+                    print('moving right')
+                    player.moving_right = True
+                if event.key == pygame.K_LSHIFT:
+                    player.is_running = True
+                if event.key == pygame.K_e:
+                    player.interact('nothing')
 
-        if event.type == pygame.KEYUP:
+            if event.type == pygame.KEYUP:
 
-            if event.key == pygame.K_w:
-                print('no longer moving up')
-                player.moving_up = False
-            if event.key == pygame.K_s:
-                print('no longer moving down')
-                player.moving_down = False
-            if event.key == pygame.K_a:
-                print('no longer moving left')
-                player.moving_left = False
-            if event.key == pygame.K_d:
-                print('no longer moving right')
-                player.moving_right = False
-            if event.key == pygame.K_LSHIFT:
-                player.is_running = False
+                if event.key == pygame.K_w:
+                    print('no longer moving up')
+                    player.moving_up = False
+                if event.key == pygame.K_s:
+                    print('no longer moving down')
+                    player.moving_down = False
+                if event.key == pygame.K_a:
+                    print('no longer moving left')
+                    player.moving_left = False
+                if event.key == pygame.K_d:
+                    print('no longer moving right')
+                    player.moving_right = False
+                if event.key == pygame.K_LSHIFT:
+                    player.is_running = False
 
-    player.update()
+        player.update()
 
-# shuts down all pygame modules - IDLE friendly
-pygame.quit()
+    # shuts down all pygame modules - IDLE friendly
+    pygame.quit()
+
+
+class Renderer(object):
+    def __init__(self, filename):
+        tm = pytmx.load_pygame(filename, pixelalpha=True)
+        self.size = tm.width * tm.tilewidth, tm.height * tm.tileheight
+        self.tmx_data = tm
+
+    def render(self, surface):
+
+        tw = self.tmx_data.tilewidth
+        th = self.tmx_data.tileheight
+
+        if self.tmx_data.background_color:
+            surface.fill(self.tmx_data.background_color)
+
+        for layer in self.tmx_data.visible_layers:
+            if isinstance(layer, pytmx.TiledTileLayer):
+                for x, y, gid in layer:
+                    tile = self.tmx_data.get_tile_image_by_gid(gid)
+                    if tile:
+                        surface.blit(tile, (x * tw, y * th))
+
+            elif isinstance(layer, pytmx.TiledObjectGroup):
+                pass
+
+            elif isinstance(layer, pytmx.TiledImageLayer):
+                image = self.tmx_data.get_tile_image_by_gid(layer.gid)
+                if image:
+                    surface.blit(image, (0, 0))
+
+    def make_map(self):
+        temp_surface = pygame.Surface(self.size)
+        self.render(temp_surface)
+        return temp_surface
+
+
+if __name__ == '__main__':
+    run_game()
