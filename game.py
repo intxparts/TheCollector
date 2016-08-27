@@ -33,6 +33,8 @@ class Player:
     SPRITE_RIGHT_WALK1 = pygame.image.load(get_asset_file('char_right_walk1.png'))
     SPRITE_RIGHT_WALK2 = pygame.image.load(get_asset_file('char_right_walk2.png'))
 
+    SPRITE_DEATH = pygame.image.load(get_asset_file('death.png'))
+
     def __init__(self, position, id):
         self.__aabb_sprite = pygame.Surface((28, 36))
         self.__aabb_sprite.fill(Color.STEEL_BLUE)
@@ -49,11 +51,14 @@ class Player:
         self.__speed = [1, 1]
         self.__sprite_index = 0
         self.__sprite_group_index = 0
+        self.__is_alive = True
+        self.__death_frames = 0
         self.__sprites = [
             [Player.SPRITE_UP_STAND, Player.SPRITE_UP_WALK1, Player.SPRITE_UP_STAND, Player.SPRITE_UP_WALK2],
             [Player.SPRITE_DOWN_STAND, Player.SPRITE_DOWN_WALK1, Player.SPRITE_DOWN_STAND, Player.SPRITE_DOWN_WALK2],
             [Player.SPRITE_LEFT_STAND, Player.SPRITE_LEFT_WALK1, Player.SPRITE_LEFT_STAND, Player.SPRITE_LEFT_WALK2],
-            [Player.SPRITE_RIGHT_STAND, Player.SPRITE_RIGHT_WALK1, Player.SPRITE_RIGHT_STAND, Player.SPRITE_RIGHT_WALK2]
+            [Player.SPRITE_RIGHT_STAND, Player.SPRITE_RIGHT_WALK1, Player.SPRITE_RIGHT_STAND, Player.SPRITE_RIGHT_WALK2],
+            [Player.SPRITE_DEATH]
             ]
 
     @property
@@ -110,6 +115,17 @@ class Player:
         return self.__aabb_sprite
 
     @property
+    def is_alive(self):
+        return self.__is_alive
+
+    @is_alive.setter
+    def is_alive(self, value):
+        if not value:
+            self.__sprite_index = 0
+            self.__sprite_group_index = 4
+        self.__is_alive = value
+
+    @property
     def current_sprite(self):
         return self.__sprites[self.__sprite_group_index][self.__sprite_index]
 
@@ -126,6 +142,14 @@ class Player:
 
     def update(self, level):
 
+        if not self.is_alive:
+            if self.__death_frames > 120:
+                self.__death_frames = 0
+                return 'reset_level'
+            else:
+                self.__death_frames += 1
+                return None
+
         moving_vector = [0, 0]
         if self.moving_left:
             moving_vector[0] -= 1
@@ -140,7 +164,7 @@ class Player:
 
         if is_moving:
             if self.__sprite_shift_counter > 10:
-                self.__sprite_index = (self.__sprite_index + 1) % 4
+                self.__sprite_index = (self.__sprite_index + 1) % len(self.__sprites[self.__sprite_group_index])
                 self.__sprite_shift_counter = 0
             self.__sprite_shift_counter += 1
             dx = moving_vector[0]*self.__speed[0]
@@ -150,10 +174,22 @@ class Player:
                 if self.__aabb.colliderect(blocker):
                     self.__aabb.x -= dx
 
+            for spikes in level.spikes:
+                if self.__aabb.colliderect(spikes.AABB):
+                    spikes.is_triggered = True
+                    if spikes.is_extended:
+                        self.is_alive = False
+
             self.__aabb.y += dy
             for blocker in level.blockers:
                 if self.__aabb.colliderect(blocker):
                     self.__aabb.y -= dy
+
+            for spikes in level.spikes:
+                if self.__aabb.colliderect(spikes.AABB):
+                    spikes.is_triggered = True
+                    if spikes.is_extended:
+                        self.is_alive = False
 
             if self.__aabb.colliderect(level.entrance):
                 return 'prev_level'
@@ -195,71 +231,138 @@ def run_game():
         display.blit(player.aabb_sprite, player.position)
 
         display.blit(player.current_sprite, player.position)
+        for spikes in current_level.spikes:
+            spikes.render(display)
+
         pygame.display.flip()
 
-        events = pygame.event.get()
+        if player.is_alive:
+            events = pygame.event.get()
 
-        # handle input
-        for event in events:
-            # handle clicking the X on the game window
-            if event.type == pygame.QUIT:
-                print('received a quit request')
-                done = True
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
+            # handle input
+            for event in events:
+                # handle clicking the X on the game window
+                if event.type == pygame.QUIT:
+                    print('received a quit request')
                     done = True
-                if event.key == pygame.K_w:
-                    print('moving up')
-                    player.moving_up = True
-                if event.key == pygame.K_s:
-                    print('moving down')
-                    player.moving_down = True
-                if event.key == pygame.K_a:
-                    print('moving left')
-                    player.moving_left = True
-                if event.key == pygame.K_d:
-                    print('moving right')
-                    player.moving_right = True
-                if event.key == pygame.K_LSHIFT:
-                    player.is_running = True
-                if event.key == pygame.K_e:
-                    player.interact('nothing')
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        done = True
+                    if event.key == pygame.K_w:
+                        print('moving up')
+                        player.moving_up = True
+                    if event.key == pygame.K_s:
+                        print('moving down')
+                        player.moving_down = True
+                    if event.key == pygame.K_a:
+                        print('moving left')
+                        player.moving_left = True
+                    if event.key == pygame.K_d:
+                        print('moving right')
+                        player.moving_right = True
+                    if event.key == pygame.K_LSHIFT:
+                        player.is_running = True
+                    if event.key == pygame.K_e:
+                        player.interact('nothing')
 
-            if event.type == pygame.KEYUP:
+                if event.type == pygame.KEYUP:
 
-                if event.key == pygame.K_w:
-                    print('no longer moving up')
-                    player.moving_up = False
-                if event.key == pygame.K_s:
-                    print('no longer moving down')
-                    player.moving_down = False
-                if event.key == pygame.K_a:
-                    print('no longer moving left')
-                    player.moving_left = False
-                if event.key == pygame.K_d:
-                    print('no longer moving right')
-                    player.moving_right = False
-                if event.key == pygame.K_LSHIFT:
-                    player.is_running = False
+                    if event.key == pygame.K_w:
+                        print('no longer moving up')
+                        player.moving_up = False
+                    if event.key == pygame.K_s:
+                        print('no longer moving down')
+                        player.moving_down = False
+                    if event.key == pygame.K_a:
+                        print('no longer moving left')
+                        player.moving_left = False
+                    if event.key == pygame.K_d:
+                        print('no longer moving right')
+                        player.moving_right = False
+                    if event.key == pygame.K_LSHIFT:
+                        player.is_running = False
 
         transition = player.update(current_level)
+        for spikes in current_level.spikes:
+            spikes.update()
         if transition:
-            level_index = (level_index - 1) if transition == 'prev_level' else (level_index + 1)
-            if level_index < 0:
-                print('beginning')
-                done = True
-            elif level_index == len(levels):
-                print('end')
-                done = True
-            else:
+            if transition == 'reset_level':
                 current_level = Level(levels[level_index], prev_level=True)
                 map_surface = current_level.make_map()
                 map_rect = map_surface.get_rect()
-
                 player = Player((current_level.spawn_location.x, current_level.spawn_location.y), 'player_main')
+            elif transition == 'prev_level' or transition == 'next_level':
+                prev_level = True
+                if transition == 'prev_level':
+                    level_index -= 1
+                    prev_level = False
+                elif transition == 'next_level':
+                    level_index += 1
+
+                if level_index < 0:
+                    print('beginning')
+                    done = True
+                elif level_index == len(levels):
+                    print('end')
+                    done = True
+                else:
+                    current_level = Level(levels[level_index], prev_level=prev_level)
+                    map_surface = current_level.make_map()
+                    map_rect = map_surface.get_rect()
+                    player = Player((current_level.spawn_location.x, current_level.spawn_location.y), 'player_main')
 
     # shuts down all pygame modules - IDLE friendly
     pygame.quit()
+
+
+class Spikes:
+    EXTENDED_SPIKES_OFFSET = 20
+    EXTENDED_SPIKES = pygame.image.load(get_asset_file('floor_spike_extended.png'))
+
+    def __init__(self, rect):
+        self.__aabb = rect
+        self.__is_triggered = False
+        self.__frames = 0
+        self.__is_extended = False
+
+    @property
+    def AABB(self):
+        return self.__aabb
+
+    @property
+    def is_triggered(self):
+        return self.__is_triggered
+
+    @is_triggered.setter
+    def is_triggered(self, value):
+        self.__is_triggered = value
+
+    @property
+    def is_extended(self):
+        return self.__is_extended
+
+    def render(self, display):
+        if self.__is_extended:
+            display.blit(Spikes.EXTENDED_SPIKES, (self.__aabb.x, self.__aabb.y - Spikes.EXTENDED_SPIKES_OFFSET))
+
+    def update(self):
+
+        if self.__is_triggered:
+            if self.__frames > 30:
+                self.__is_triggered = False
+                self.__is_extended = True
+                self.__frames = 0
+            else:
+                self.__frames += 1
+
+        if self.__is_extended:
+            if self.__frames > 30:
+                self.__is_extended = False
+                self.__is_triggered = False
+                self.__frames = 0
+            else:
+                self.__frames += 1
+
 
 
 class Level:
@@ -268,6 +371,7 @@ class Level:
         self.size = tm.width * tm.tilewidth, tm.height * tm.tileheight
         self.tmx_data = tm
         self.blockers = []
+        self.spikes = []
         self.spawn_location = None
         self._prev_level = prev_level
         self.entrance = None
@@ -288,6 +392,15 @@ class Level:
                                 int(tile_props['width'])
                             )
                         )
+                    if tile_props and 'trap' in tile_props and tile_props['trap'] == 'spikes':
+                        self.spikes.append(
+                            Spikes(pygame.Rect(
+                                x * self.tmx_data.tilewidth,
+                                y * self.tmx_data.tileheight,
+                                int(tile_props['height']),
+                                int(tile_props['width'])
+                            ))
+                        )
             if isinstance(layer, pytmx.TiledObjectGroup):
                 for tile_object in layer:
                     if 'spawn' in tile_object.properties:
@@ -296,7 +409,7 @@ class Level:
                                 self.spawn_location = self.__create_rect_from_tile_object(tile_object)
                         else:
                             if tile_object.properties['spawn'] == 'next_room':
-                                self.spawn_location = self.__create_rect_from_tWWile_object(tile_object)
+                                self.spawn_location = self.__create_rect_from_tile_object(tile_object)
                     if 'exit' in tile_object.properties:
                         # colliding with the entrance will take you to the previous room
                         if tile_object.properties['exit'] == 'prev_room':
