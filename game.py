@@ -338,7 +338,8 @@ def run_game():
     map_rect = map_surface.get_rect()
 
     player = Player((current_level.spawn_location.x, current_level.spawn_location.y), 'player_main')
-
+    end_game = False
+    end_game_state = 'something_wrong'
     done = False
     while not done:
         clock.tick(60)
@@ -438,16 +439,46 @@ def run_game():
                     level_index += 1
 
                 if level_index < 0:
-                    print('beginning')
+                    end_game = True
+                    end_game_state = 'going_home_early'
                     done = True
                 elif level_index == len(levels):
-                    print('end')
+                    end_game = True
+                    end_game_state = 'victory'
                     done = True
                 else:
                     current_level = Level(levels[level_index], prev_level=prev_level)
                     map_surface = current_level.make_map()
                     map_rect = map_surface.get_rect()
                     player.reset((current_level.spawn_location.x, current_level.spawn_location.y))
+
+    EARLY_ENDING = pygame.image.load(get_asset_file('early_ending.png'))
+    VICTORY = pygame.image.load(get_asset_file('victory.png'))
+    while end_game:
+        clock.tick(60)
+        display.fill(Color.BLACK)
+        events = pygame.event.get()
+        if end_game_state == 'going_home_early':
+            display.blit(EARLY_ENDING, (0, 0))
+        elif end_game_state == 'victory':
+            display.blit(VICTORY, (0, 0))
+            show_case_x = 0
+            show_case_y = 400
+            for artifact in player.artifacts_collected:
+                display.blit(artifact.image, (show_case_x, show_case_y))
+                show_case_x += 40
+
+        pygame.display.flip()
+        # handle input
+        for event in events:
+            # handle clicking the X on the game window
+            if event.type == pygame.QUIT:
+                print('received a quit request')
+                end_game = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN or event.key == pygame.K_SPACE:
+                    end_game = False
+
 
     # shuts down all pygame modules - IDLE friendly
     pygame.quit()
