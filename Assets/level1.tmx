@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="left-down" width="20" height="15" tilewidth="40" tileheight="40" nextobjectid="29">
- <tileset firstgid="1" name="ancientTech" tilewidth="40" tileheight="40" tilecount="13" columns="0">
+<map version="1.0" orientation="orthogonal" renderorder="left-down" width="20" height="15" tilewidth="40" tileheight="40" nextobjectid="31">
+ <tileset firstgid="1" name="ancientTech" tilewidth="40" tileheight="40" tilecount="14" columns="0">
   <tile id="1">
    <properties>
     <property name="passable" type="bool" value="true"/>
@@ -58,12 +58,15 @@
    </properties>
    <image width="40" height="40" source="water.png"/>
   </tile>
+  <tile id="16">
+   <image width="40" height="40" source="gate.png"/>
+  </tile>
  </tileset>
  <layer name="Tile Layer 1" width="20" height="15">
   <data encoding="csv">
 3,3,3,3,3,3,3,3,3,8,9,3,3,3,3,3,3,3,3,3,
 3,2,2,2,2,2,2,2,2,2,2,11,2,2,2,2,2,2,2,3,
-3,2,3,2,2,2,2,2,11,2,2,2,2,2,2,2,2,3,2,3,
+3,2,3,2,2,2,2,2,11,2,2,3,2,2,2,2,2,3,2,3,
 3,2,2,11,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,
 3,2,2,2,3,3,3,2,2,2,2,2,2,3,3,3,2,2,2,3,
 3,2,2,2,3,3,3,2,2,2,2,2,2,3,3,3,2,2,2,3,
@@ -104,13 +107,26 @@
   </object>
   <object id="27" gid="14" x="440" y="520" width="40" height="40">
    <properties>
-    <property name="timer" type="int" value="500"/>
-    <property name="trigger" value="something"/>
+    <property name="timer" type="int" value="200"/>
+    <property name="trigger" value="alpha"/>
    </properties>
   </object>
   <object id="28" gid="14" x="360" y="480" width="40" height="40">
    <properties>
     <property name="trigger" value="somethingelse"/>
+   </properties>
+  </object>
+  <object id="29" gid="17" x="400" y="120.25" width="40" height="40">
+   <properties>
+    <property name="direction" type="int" value="1"/>
+    <property name="gate" value="alpha"/>
+    <property name="max_move_length" type="int" value="40"/>
+    <property name="move_rate" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="30" gid="14" x="480" y="520.25" width="40" height="40">
+   <properties>
+    <property name="trigger" value="alpha"/>
    </properties>
   </object>
  </objectgroup>

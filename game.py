@@ -35,6 +35,10 @@ class Player:
 
     SPRITE_DEATH = pygame.image.load(get_asset_file('death.png'))
 
+    HOLE_COLLISION = pygame.sprite.collide_rect_ratio(0.70)
+    GATE_COLLISION_Y = pygame.sprite.collide_rect_ratio(0.5)
+    GATE_COLLISION_X = pygame.sprite.collide_rect_ratio(1)
+
     def __init__(self, position, id):
         self.__aabb_sprite = CharBoundingBox()
         self.__aabb = self.__aabb_sprite.rect
@@ -173,19 +177,22 @@ class Player:
                 if self.__aabb.colliderect(blocker):
                     self.__aabb.x -= dx
 
+            for gate in level.gates:
+                if Player.GATE_COLLISION_X(self.__aabb_sprite, gate):
+                    self.__aabb.x -= dx
+
             for spikes in level.spikes:
                 if self.__aabb.colliderect(spikes.AABB):
                     spikes.is_triggered = True
                     if spikes.is_extended:
                         self.is_alive = False
 
-            hole_collision = pygame.sprite.collide_circle_ratio(0.67)
             for hole in level.holes:
-                if hole_collision(self.__aabb_sprite, hole):
+                if Player.GATE_COLLISION_Y(self.__aabb_sprite, hole):
                     self.is_alive = False
 
             for water in level.water:
-                if hole_collision(self.__aabb_sprite, water):
+                if Player.GATE_COLLISION_Y(self.__aabb_sprite, water):
                     self.is_alive = False
 
             for button in level.buttons:
@@ -197,6 +204,10 @@ class Player:
                 if self.__aabb.colliderect(blocker):
                     self.__aabb.y -= dy
 
+            for gate in level.gates:
+                if Player.GATE_COLLISION_Y(self.__aabb_sprite, gate):
+                    self.__aabb.y -= dy
+
             for spikes in level.spikes:
                 if self.__aabb.colliderect(spikes.AABB):
                     spikes.is_triggered = True
@@ -204,11 +215,11 @@ class Player:
                         self.is_alive = False
 
             for hole in level.holes:
-                if hole_collision(self.__aabb_sprite, hole):
+                if Player.HOLE_COLLISION(self.__aabb_sprite, hole):
                     self.is_alive = False
 
             for water in level.water:
-                if hole_collision(self.__aabb_sprite, water):
+                if Player.HOLE_COLLISION(self.__aabb_sprite, water):
                     self.is_alive = False
 
             for button in level.buttons:
@@ -253,6 +264,9 @@ def run_game():
 
         for button in current_level.buttons:
             button.render(display)
+
+        for gate in current_level.gates:
+            gate.render(display)
 
         # debug purposes
         display.blit(player.aabb_sprite.image, player.position)
@@ -315,6 +329,8 @@ def run_game():
             spikes.update()
         for button in current_level.buttons:
             button.update()
+        for gate in current_level.gates:
+            gate.update(current_level.buttons)
         if transition:
             if transition == 'reset_level':
                 current_level = Level(levels[level_index], prev_level=True)
@@ -345,6 +361,47 @@ def run_game():
     pygame.quit()
 
 
+class Gate(pygame.sprite.Sprite):
+    SPRITE_GATE = pygame.image.load(get_asset_file('gate.png'))
+
+    def __init__(self, rect, name, direction, move_rate, max_move_length):
+        pygame.sprite.Sprite.__init__(self)
+        print('max move length', max_move_length)
+        self.image = Gate.SPRITE_GATE
+        self.rect = rect.copy()
+        self.__name = name
+        self.__original_position = rect.copy()
+        self.__aabb = rect.copy()
+        self.__direction = direction
+        self.__move_rate = move_rate
+        self.__max_move_length = max_move_length
+        self.__frames = 0
+
+    @property
+    def AABB(self):
+        return self.__aabb
+
+    def render(self, display):
+        display.blit(Gate.SPRITE_GATE, (self.__aabb.x, self.__aabb.y))
+
+    def update(self, buttons):
+        is_powered = True
+        for button in buttons:
+            if button.trigger_object == self.__name:
+                is_powered = is_powered and button.is_activated
+                # print('gate is powered =', is_powered, 'button is activated =', button.is_activated)
+
+        distance = abs(self.__aabb.x - self.__original_position.x)
+        if is_powered:
+            if distance < self.__max_move_length:
+                self.__aabb.x += self.__direction*self.__move_rate
+        else:
+            # print('distance = ', distance)
+            if self.__aabb.x != self.__original_position.x:
+                self.__aabb.x += -1*self.__direction*self.__move_rate
+        self.rect.x = self.__aabb.x
+        self.rect.y = self.__aabb.y
+
 class Button:
     SPRITE_PRESSED = pygame.image.load(get_asset_file('button_pressed.png'))
     SPRITE_UNPRESSED = pygame.image.load(get_asset_file('button_unpressed.png'))
@@ -355,6 +412,10 @@ class Button:
         self.__reset_time = reset_time
         self.__aabb = rect
         self.trigger_object = trigger_object
+
+    @property
+    def is_activated(self):
+        return self.__activated
 
     @property
     def AABB(self):
@@ -437,6 +498,7 @@ class Level:
         self.buttons = []
         self.holes = []
         self.water = []
+        self.gates = []
         self.spawn_location = None
         self._prev_level = prev_level
         self.entrance = None
@@ -477,6 +539,12 @@ class Level:
                             )
             if isinstance(layer, pytmx.TiledObjectGroup):
                 for tile_object in layer:
+                    if 'gate' in tile_object.properties:
+                        direction = int(tile_object.properties['direction'])
+                        move_rate = int(tile_object.properties['move_rate'])
+                        max_move_length = int(tile_object.properties['max_move_length'])
+                        name = tile_object.properties['gate']
+                        self.gates.append(Gate(self.__create_rect_from_tile_object(tile_object), name, direction, move_rate, max_move_length))
                     if 'button' in tile_object.properties:
                         timer = int(tile_object.properties['timer']) if 'timer' in tile_object.properties else -1
                         self.buttons.append(Button(self.__create_rect_from_tile_object(tile_object), timer, tile_object.properties['trigger']))
