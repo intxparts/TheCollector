@@ -38,7 +38,7 @@ class Player:
     HOLE_COLLISION = pygame.sprite.collide_rect_ratio(0.70)
     GATE_COLLISION_Y = pygame.sprite.collide_rect_ratio(0.5)
     GATE_COLLISION_X = pygame.sprite.collide_rect_ratio(1)
-    BOULDER_COLLISION = pygame.sprite.collide_circle_ratio(1)
+    BOULDER_COLLISION = pygame.sprite.collide_circle_ratio(0.75)
 
     def __init__(self, position, id):
         self.__aabb_sprite = CharBoundingBox()
@@ -164,6 +164,18 @@ class Player:
         if self.moving_down:
             moving_vector[1] += 1
 
+        for boulder in level.boulders:
+            if boulder.is_activated:
+                if Player.BOULDER_COLLISION(self.__aabb_sprite, boulder):
+                    if boulder.is_moving:
+                        self.is_alive = False
+
+        for spikes in level.spikes:
+            if self.__aabb.colliderect(spikes.AABB):
+                spikes.is_triggered = True
+                if spikes.is_extended:
+                    self.is_alive = False
+
         is_moving = moving_vector[0] != 0 or moving_vector[1] != 0
 
         if is_moving:
@@ -178,30 +190,22 @@ class Player:
                 if self.__aabb.colliderect(blocker):
                     self.__aabb.x -= dx
 
+            for boulder in level.boulders:
+                if boulder.is_activated:
+                    if Player.BOULDER_COLLISION(self.__aabb_sprite, boulder):
+                        if not boulder.is_moving:
+                            self.__aabb.x -= dx
+
             for gate in level.gates:
                 if Player.GATE_COLLISION_X(self.__aabb_sprite, gate):
                     self.__aabb.x -= dx
 
-            for boulder in level.boulders:
-                if boulder.is_activated:
-                    if Player.BOULDER_COLLISION(self.__aabb_sprite, boulder):
-                        if boulder.is_moving:
-                            self.is_alive = False
-                        else:
-                            self.__aabb.x -= dx
-
-            for spikes in level.spikes:
-                if self.__aabb.colliderect(spikes.AABB):
-                    spikes.is_triggered = True
-                    if spikes.is_extended:
-                        self.is_alive = False
-
             for hole in level.holes:
-                if Player.GATE_COLLISION_Y(self.__aabb_sprite, hole):
+                if self.__aabb.colliderect(hole.AABB):
                     self.is_alive = False
 
             for water in level.water:
-                if Player.GATE_COLLISION_Y(self.__aabb_sprite, water):
+                if self.__aabb.colliderect(water.AABB):
                     self.is_alive = False
 
             for button in level.buttons:
@@ -232,11 +236,11 @@ class Player:
                         self.is_alive = False
 
             for hole in level.holes:
-                if Player.HOLE_COLLISION(self.__aabb_sprite, hole):
+                if self.__aabb.colliderect(hole.AABB):
                     self.is_alive = False
 
             for water in level.water:
-                if Player.HOLE_COLLISION(self.__aabb_sprite, water):
+                if self.__aabb.colliderect(water.AABB):
                     self.is_alive = False
 
             for button in level.buttons:
@@ -286,7 +290,7 @@ def run_game():
             gate.render(display)
 
         # debug purposes
-        display.blit(player.aabb_sprite.image, player.position)
+        # display.blit(player.aabb_sprite.image, player.position)
 
         display.blit(player.current_sprite, player.position)
 
@@ -431,7 +435,12 @@ class Button:
         self.__activated = False
         self.__timer_frames = 0
         self.__reset_time = reset_time
-        self.__aabb = rect
+        self.__sprite_position = rect.copy()
+        self.__aabb = rect.copy()
+        self.__aabb.x += 10
+        self.__aabb.y += 14
+        self.__aabb.width = 18
+        self.__aabb.height = 12
         self.trigger_object = trigger_object
 
     @property
@@ -444,9 +453,9 @@ class Button:
 
     def render(self, display):
         if self.__activated:
-            display.blit(Button.SPRITE_PRESSED, (self.__aabb.x, self.__aabb.y))
+            display.blit(Button.SPRITE_PRESSED, (self.__sprite_position.x, self.__sprite_position.y))
         else:
-            display.blit(Button.SPRITE_UNPRESSED, (self.__aabb.x, self.__aabb.y))
+            display.blit(Button.SPRITE_UNPRESSED, (self.__sprite_position.x, self.__sprite_position.y))
 
     def activate(self):
         self.__activated = True
@@ -493,7 +502,7 @@ class Spikes:
     def update(self):
 
         if self.__is_triggered:
-            if self.__frames > 30:
+            if self.__frames > 37:
                 self.__is_triggered = False
                 self.__is_extended = True
                 self.__frames = 0
@@ -677,7 +686,7 @@ class Boulder(pygame.sprite.Sprite):
                 self.__is_moving = False
 
         if self.__is_moving:
-            if self.__frames > 120/self.__move_rate:
+            if self.__frames > 80/self.__move_rate:
                 self.__frames = 0
                 self.__sprite_index = (self.__sprite_index + 1) % len(Boulder.SPRITES)
             else:
@@ -702,8 +711,15 @@ class Hole(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = image
         self.rect = rect
+        self.__aabb = rect.copy()
+        self.__aabb.x += 10
+        self.__aabb.y += 5
+        self.__aabb.height = 10
+        self.__aabb.width = 20
 
-
+    @property
+    def AABB(self):
+        return self.__aabb
 
 
 if __name__ == '__main__':

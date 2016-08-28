@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="left-down" width="20" height="15" tilewidth="40" tileheight="40" nextobjectid="31">
- <tileset firstgid="1" name="ancientTech" tilewidth="40" tileheight="40" tilecount="14" columns="0">
+<map version="1.0" orientation="orthogonal" renderorder="left-down" width="20" height="15" tilewidth="40" tileheight="40" nextobjectid="35">
+ <tileset firstgid="1" name="ancientTech" tilewidth="40" tileheight="40" tilecount="15" columns="0">
   <tile id="1">
    <properties>
     <property name="passable" type="bool" value="true"/>
@@ -61,6 +61,9 @@
   <tile id="16">
    <image width="40" height="40" source="gate.png"/>
   </tile>
+  <tile id="18">
+   <image width="40" height="40" source="boulder1.png"/>
+  </tile>
  </tileset>
  <layer name="Tile Layer 1" width="20" height="15">
   <data encoding="csv">
@@ -68,16 +71,16 @@
 3,2,2,2,2,2,2,2,2,2,2,11,2,2,2,2,2,2,2,3,
 3,2,3,2,2,2,2,2,11,2,2,3,2,2,2,2,2,3,2,3,
 3,2,2,11,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,
-3,2,2,2,3,3,3,2,2,2,2,2,2,3,3,3,2,2,2,3,
-3,2,2,2,3,3,3,2,2,2,2,2,2,3,3,3,2,2,2,3,
-3,2,2,2,3,3,3,2,2,3,3,2,11,3,3,3,2,2,2,3,
+3,2,2,2,15,15,15,15,2,2,2,2,2,3,3,3,2,2,2,3,
+3,2,2,2,2,2,2,15,2,2,2,2,2,3,3,3,2,2,2,3,
+3,2,2,2,15,15,15,15,2,3,3,2,11,3,3,3,2,2,2,3,
 3,2,2,2,2,2,2,2,2,3,3,2,2,2,2,2,2,2,2,3,
-3,2,2,2,3,3,3,2,11,3,3,2,2,3,3,3,2,2,2,3,
-3,2,2,2,3,3,3,2,2,2,2,2,2,3,3,3,2,2,2,3,
-3,2,2,2,3,3,3,2,2,2,2,2,2,3,3,3,2,2,2,3,
-3,2,2,2,2,2,2,2,2,11,2,2,2,2,2,2,2,2,2,3,
-3,2,3,2,15,15,15,2,2,2,2,2,2,2,2,2,2,3,2,3,
+3,2,2,2,16,16,16,2,11,3,3,2,2,3,3,3,2,2,2,3,
 3,2,2,2,16,16,16,2,2,2,2,2,2,2,2,2,2,2,2,3,
+3,2,2,2,2,2,2,2,2,2,2,2,2,15,15,15,2,2,2,3,
+3,2,2,2,2,2,2,2,2,11,2,2,2,15,15,15,2,2,2,3,
+3,2,2,2,16,2,15,2,2,2,2,2,2,2,2,2,2,2,2,3,
+3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,
 3,3,3,3,3,3,3,3,3,5,6,3,3,3,3,3,3,3,3,3
 </data>
  </layer>
@@ -127,6 +130,19 @@
   <object id="30" gid="14" x="480" y="520.25" width="40" height="40">
    <properties>
     <property name="trigger" value="alpha"/>
+   </properties>
+  </object>
+  <object id="33" gid="19" x="680" y="520" width="40" height="40">
+   <properties>
+    <property name="boulder" value="beta"/>
+    <property name="direction" type="int" value="-1"/>
+    <property name="max_move_length" type="int" value="400"/>
+    <property name="move_rate" type="int" value="2"/>
+   </properties>
+  </object>
+  <object id="34" gid="14" x="680" y="439.5" width="40" height="40">
+   <properties>
+    <property name="trigger" value="beta"/>
    </properties>
   </object>
  </objectgroup>
