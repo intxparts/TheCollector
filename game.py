@@ -14,6 +14,7 @@ def get_asset_file(filename):
 class Color:
     STEEL_BLUE = (95, 158, 160)
     BLACK = (0, 0, 0)
+    AWESOME_GRAY = (49, 49, 49)
 
 
 class Player:
