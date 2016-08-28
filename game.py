@@ -38,6 +38,7 @@ class Player:
     HOLE_COLLISION = pygame.sprite.collide_rect_ratio(0.70)
     GATE_COLLISION_Y = pygame.sprite.collide_rect_ratio(0.5)
     GATE_COLLISION_X = pygame.sprite.collide_rect_ratio(1)
+    BOULDER_COLLISION = pygame.sprite.collide_circle_ratio(1)
 
     def __init__(self, position, id):
         self.__aabb_sprite = CharBoundingBox()
@@ -181,6 +182,14 @@ class Player:
                 if Player.GATE_COLLISION_X(self.__aabb_sprite, gate):
                     self.__aabb.x -= dx
 
+            for boulder in level.boulders:
+                if boulder.is_activated:
+                    if Player.BOULDER_COLLISION(self.__aabb_sprite, boulder):
+                        if boulder.is_moving:
+                            self.is_alive = False
+                        else:
+                            self.__aabb.x -= dx
+
             for spikes in level.spikes:
                 if self.__aabb.colliderect(spikes.AABB):
                     spikes.is_triggered = True
@@ -207,6 +216,14 @@ class Player:
             for gate in level.gates:
                 if Player.GATE_COLLISION_Y(self.__aabb_sprite, gate):
                     self.__aabb.y -= dy
+
+            for boulder in level.boulders:
+                if boulder.is_activated:
+                    if Player.BOULDER_COLLISION(self.__aabb_sprite, boulder):
+                        if boulder.is_moving:
+                            self.is_alive = False
+                        else:
+                            self.__aabb.y -= dy
 
             for spikes in level.spikes:
                 if self.__aabb.colliderect(spikes.AABB):
@@ -273,6 +290,9 @@ def run_game():
 
         display.blit(player.current_sprite, player.position)
 
+        for boulder in current_level.boulders:
+            boulder.render(display)
+
         for spikes in current_level.spikes:
             spikes.render(display)
 
@@ -331,6 +351,8 @@ def run_game():
             button.update()
         for gate in current_level.gates:
             gate.update(current_level.buttons)
+        for boulder in current_level.boulders:
+            boulder.update(current_level.buttons)
         if transition:
             if transition == 'reset_level':
                 current_level = Level(levels[level_index], prev_level=True)
@@ -366,7 +388,6 @@ class Gate(pygame.sprite.Sprite):
 
     def __init__(self, rect, name, direction, move_rate, max_move_length):
         pygame.sprite.Sprite.__init__(self)
-        print('max move length', max_move_length)
         self.image = Gate.SPRITE_GATE
         self.rect = rect.copy()
         self.__name = name
@@ -499,6 +520,7 @@ class Level:
         self.holes = []
         self.water = []
         self.gates = []
+        self.boulders = []
         self.spawn_location = None
         self._prev_level = prev_level
         self.entrance = None
@@ -539,6 +561,12 @@ class Level:
                             )
             if isinstance(layer, pytmx.TiledObjectGroup):
                 for tile_object in layer:
+                    if 'boulder' in tile_object.properties:
+                        direction = int(tile_object.properties['direction'])
+                        move_rate = int(tile_object.properties['move_rate'])
+                        max_move_length = int(tile_object.properties['max_move_length'])
+                        name = tile_object.properties['boulder']
+                        self.boulders.append(Boulder(self.__create_rect_from_tile_object(tile_object), name, direction, move_rate, max_move_length))
                     if 'gate' in tile_object.properties:
                         direction = int(tile_object.properties['direction'])
                         move_rate = int(tile_object.properties['move_rate'])
@@ -594,6 +622,69 @@ class Level:
         temp_surface = pygame.Surface(self.size)
         self.render(temp_surface)
         return temp_surface
+
+
+class Boulder(pygame.sprite.Sprite):
+
+    SPRITE_BOULDER1 = pygame.image.load(get_asset_file('boulder1.png'))
+    SPRITE_BOULDER2 = pygame.image.load(get_asset_file('boulder2.png'))
+    SPRITE_BOULDER3 = pygame.image.load(get_asset_file('boulder3.png'))
+    SPRITE_BOULDER4 = pygame.image.load(get_asset_file('boulder4.png'))
+
+    SPRITES = [SPRITE_BOULDER1, SPRITE_BOULDER3, SPRITE_BOULDER2, SPRITE_BOULDER4]
+
+    def __init__(self, rect, name, direction, move_rate, max_move_length):
+        pygame.sprite.Sprite.__init__(self)
+        self.rect = rect.copy()
+        self.__original_position = rect.copy()
+        self.__aabb = rect.copy()
+        self.__name = name
+        self.__direction = direction
+        self.__move_rate = move_rate
+        self.__max_move_length = max_move_length
+        self.__sprite_index = 0
+        self.__frames = 0
+        self.__is_activated = False
+        self.__is_moving = False
+
+    @property
+    def is_activated(self):
+        return self.__is_activated
+
+    @property
+    def is_moving(self):
+        return self.__is_moving
+
+    def render(self, display):
+        if self.__is_activated:
+            display.blit(self.SPRITES[self.__sprite_index], (self.__aabb.x, self.__aabb.y))
+
+    def update(self, buttons):
+        is_powered = True
+        for button in buttons:
+            if button.trigger_object == self.__name:
+                is_powered = is_powered and button.is_activated
+
+        if is_powered:
+            self.__is_activated = True
+
+        distance = abs(self.__aabb.y - self.__original_position.y)
+        if self.__is_activated:
+            if distance < self.__max_move_length:
+                self.__is_moving = True
+                self.__aabb.y += self.__direction*self.__move_rate
+            else:
+                self.__is_moving = False
+
+        if self.__is_moving:
+            if self.__frames > 120/self.__move_rate:
+                self.__frames = 0
+                self.__sprite_index = (self.__sprite_index + 1) % len(Boulder.SPRITES)
+            else:
+                self.__frames += 1
+        self.rect.x = self.__aabb.x
+        self.rect.y = self.__aabb.y
+
 
 class CharBoundingBox(pygame.sprite.Sprite):
     def __init__(self):
