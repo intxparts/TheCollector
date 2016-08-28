@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="left-down" width="20" height="15" tilewidth="40" tileheight="40" nextobjectid="21">
+ <tileset firstgid="1" source="ancientTech.tsx"/>
+ <layer name="Tile Layer 1" width="20" height="15">
+  <data encoding="csv">
+3,3,3,3,3,3,3,3,3,8,9,3,3,15,15,15,15,15,15,15,
+3,2,2,2,2,3,3,3,3,2,2,3,15,15,15,15,15,15,15,15,
+3,2,3,2,2,2,2,2,3,15,2,15,15,15,15,3,3,15,15,15,
+3,2,16,2,2,2,3,2,2,2,2,15,15,15,3,3,3,3,3,15,
+3,2,16,3,11,3,16,3,3,3,2,15,15,3,3,2,2,2,3,3,
+3,11,3,2,2,2,3,3,3,11,2,15,15,3,2,2,16,16,16,3,
+3,2,3,2,2,2,2,11,3,3,2,2,2,2,2,16,16,16,16,3,
+3,2,3,2,2,2,2,11,3,3,2,15,3,3,2,16,16,16,2,3,
+3,2,3,3,3,2,3,3,3,3,2,15,3,3,3,2,16,16,3,3,
+3,2,2,16,3,2,3,3,3,3,2,15,3,3,3,3,16,3,3,3,
+3,3,3,16,16,2,16,3,3,15,11,15,15,3,3,3,16,3,3,3,
+3,3,3,3,16,2,16,3,15,15,2,15,15,3,3,3,16,3,3,3,
+15,3,3,3,16,16,16,15,15,15,2,15,15,15,3,3,16,3,3,3,
+15,15,3,15,16,3,2,2,2,11,2,3,15,15,3,3,16,3,3,3,
+15,15,15,15,16,3,5,6,3,3,3,3,3,15,3,3,16,3,3,3
+</data>
+ </layer>
+ <objectgroup name="Object Layer 1">
+  <object id="1" gid="14" x="400.152" y="359.667" width="40" height="40">
+   <properties>
+    <property name="trigger" value="boulder_final"/>
+   </properties>
+  </object>
+  <object id="2" gid="19" x="400.091" y="120" width="40" height="40">
+   <properties>
+    <property name="boulder" value="boulder_final"/>
+    <property name="direction" type="int" value="1"/>
+    <property name="max_move_length" type="int" value="480"/>
+    <property name="move_rate" type="int" value="3"/>
+   </properties>
+  </object>
+  <object id="3" gid="4" x="258.667" y="559.333" width="40" height="40">
+   <properties>
+    <property name="spawn" value="prev_room"/>
+   </properties>
+  </object>
+  <object id="4" gid="4" x="380.5" y="80.3333" width="40" height="40">
+   <properties>
+    <property name="spawn" value="next_room"/>
+   </properties>
+  </object>
+  <object id="5" gid="10" x="380.833" y="40.0833" width="40" height="40">
+   <properties>
+    <property name="exit" value="next_room"/>
+   </properties>
+  </object>
+  <object id="6" gid="10" x="258.667" y="600" width="40" height="40">
+   <properties>
+    <property name="exit" value="prev_room"/>
+   </properties>
+  </object>
+  <object id="8" gid="26" x="160.083" y="280" width="40" height="40">
+   <properties>
+    <property name="artifact" value="pot"/>
+    <property name="worth" type="int" value="1200"/>
+   </properties>
+  </object>
+  <object id="12" gid="21" x="200" y="479.875" width="40" height="40">
+   <properties>
+    <property name="artifact" value="boomerang"/>
+    <property name="worth" type="int" value="800"/>
+   </properties>
+  </object>
+  <object id="15" gid="14" x="80.0455" y="400.136" width="40" height="40">
+   <properties>
+    <property name="timer" type="int" value="400"/>
+    <property name="trigger" value="itemgate"/>
+   </properties>
+  </object>
+  <object id="17" gid="19" x="720" y="319.5" width="40" height="40">
+   <properties>
+    <property name="boulder" value="stationary"/>
+    <property name="direction" type="int" value="1"/>
+    <property name="max_move_length" type="int" value="0"/>
+    <property name="move_rate" type="int" value="0"/>
+   </properties>
+  </object>
+  <object id="18" gid="17" x="199.917" y="400.333" width="40" height="40">
+   <properties>
+    <property name="direction" type="int" value="-1"/>
+    <property name="gate" value="itemgate"/>
+    <property name="max_move_length" type="int" value="40"/>
+    <property name="move_rate" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="19" gid="14" x="37" y="158" width="40" height="40"/>
+  <object id="20" gid="19" x="39.5" y="440" width="40" height="40">
+   <properties>
+    <property name="boulder" value="bld1"/>
+    <property name="direction" type="int" value="-1"/>
+    <property name="max_move_length" type="int" value="400"/>
+    <property name="move_rate" type="int" value="4"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>

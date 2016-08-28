@@ -1,69 +1,108 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="left-down" width="20" height="15" tilewidth="40" tileheight="40" nextobjectid="5">
- <tileset firstgid="1" name="ancienttech" tilewidth="40" tileheight="40" tilecount="8" columns="0">
-  <tile id="1">
-   <image width="40" height="40" source="floor1.png"/>
-  </tile>
-  <tile id="2">
-   <image width="40" height="40" source="wall_block.png"/>
-  </tile>
-  <tile id="3">
-   <image width="40" height="40" source="exit.png"/>
-  </tile>
-  <tile id="4">
-   <image width="40" height="40" source="exit_left.png"/>
-  </tile>
-  <tile id="5">
-   <image width="40" height="40" source="exit_right.png"/>
-  </tile>
-  <tile id="6">
-   <image width="40" height="40" source="start.png"/>
-  </tile>
-  <tile id="7">
-   <image width="40" height="40" source="exit_left_reverse.png"/>
-  </tile>
-  <tile id="8">
-   <image width="40" height="40" source="exit_right_reverse.png"/>
-  </tile>
- </tileset>
+<map version="1.0" orientation="orthogonal" renderorder="left-down" width="20" height="15" tilewidth="40" tileheight="40" nextobjectid="16">
+ <tileset firstgid="1" source="ancientTech.tsx"/>
  <layer name="Tile Layer 1" width="20" height="15">
   <data encoding="csv">
-0,0,0,0,0,0,0,3,3,5,6,3,3,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,3,2,2,2,2,3,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,3,3,8,9,3,3,0,0,0,0,0,0,0
+3,3,3,3,3,3,3,16,16,16,16,3,3,3,3,3,3,16,8,9,
+3,3,3,3,16,3,2,2,11,11,2,16,3,3,2,2,3,2,2,2,
+3,2,2,11,16,16,2,11,16,3,2,16,16,3,2,2,3,16,2,2,
+16,2,16,2,16,16,16,16,16,16,2,16,16,3,2,3,16,16,11,16,
+16,2,16,2,16,16,16,3,3,16,2,16,16,16,2,16,16,16,2,16,
+16,2,16,2,3,16,16,3,2,2,2,2,11,16,2,2,2,2,2,16,
+16,2,16,2,16,16,16,16,2,3,15,3,2,16,16,16,16,16,11,16,
+16,2,16,2,16,16,2,2,2,11,2,11,2,2,2,11,16,16,2,16,
+16,2,16,2,11,16,2,16,2,3,15,3,2,16,16,2,16,16,2,16,
+16,2,16,2,3,16,2,16,11,2,2,2,11,16,16,2,16,16,2,16,
+16,2,16,2,16,16,2,16,16,16,16,16,16,16,16,2,16,16,2,16,
+16,2,16,2,16,16,2,16,3,16,3,3,16,3,16,2,16,16,2,16,
+2,2,3,2,2,2,2,16,16,3,3,3,3,16,16,2,16,16,2,3,
+5,6,3,3,3,16,16,16,3,16,3,3,16,3,16,2,2,2,11,3,
+3,3,3,3,3,3,16,16,16,16,16,16,16,16,16,16,16,3,3,3
 </data>
  </layer>
  <objectgroup name="Object Layer 1">
-  <object id="1" gid="7" x="379.75" y="560" width="40" height="40">
+  <object id="1" gid="19" x="40" y="600" width="40" height="40">
    <properties>
-    <property name="spawn" value="prev_room"/>
+    <property name="boulder" value="bld1"/>
+    <property name="direction" type="int" value="-1"/>
+    <property name="max_move_length" type="int" value="480"/>
+    <property name="move_rate" type="int" value="2"/>
    </properties>
   </object>
-  <object id="2" gid="7" x="378.75" y="80.25" width="40" height="40">
+  <object id="2" gid="19" x="119.75" y="80" width="40" height="40">
    <properties>
-    <property name="spawn" value="next_room"/>
+    <property name="boulder" value="bld2"/>
+    <property name="direction" type="int" value="1"/>
+    <property name="max_move_length" type="int" value="440"/>
+    <property name="move_rate" type="int" value="3"/>
    </properties>
   </object>
-  <object id="3" gid="4" x="378.75" y="40" width="40" height="40">
+  <object id="3" gid="19" x="720" y="600" width="40" height="40">
+   <properties>
+    <property name="boulder" value="bld3"/>
+    <property name="direction" type="int" value="-1"/>
+    <property name="max_move_length" type="int" value="520"/>
+    <property name="move_rate" type="int" value="5"/>
+   </properties>
+  </object>
+  <object id="4" gid="17" x="560" y="160.273" width="40" height="40">
+   <properties>
+    <property name="direction" type="int" value="-1"/>
+    <property name="gate" value="kings_tomb"/>
+    <property name="max_move_length" type="int" value="40"/>
+    <property name="move_rate" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="5" gid="14" x="680.333" y="80" width="40" height="40">
+   <properties>
+    <property name="trigger" value="kings_tomb"/>
+   </properties>
+  </object>
+  <object id="6" gid="14" x="40" y="480.5" width="40" height="40">
+   <properties>
+    <property name="trigger" value="bld1"/>
+   </properties>
+  </object>
+  <object id="7" gid="14" x="119.5" y="279.5" width="40" height="40">
+   <properties>
+    <property name="trigger" value="bld2"/>
+   </properties>
+  </object>
+  <object id="8" gid="10" x="18.5" y="559.5" width="40" height="40">
+   <properties>
+    <property name="exit" value="prev_room"/>
+   </properties>
+  </object>
+  <object id="9" gid="10" x="741.5" y="39.75" width="40" height="40">
    <properties>
     <property name="exit" value="next_room"/>
    </properties>
   </object>
-  <object id="4" gid="4" x="380" y="600" width="40" height="40">
+  <object id="10" gid="4" x="741.25" y="80" width="40" height="40">
    <properties>
-    <property name="exit" value="prev_room"/>
+    <property name="spawn" value="next_room"/>
+   </properties>
+  </object>
+  <object id="11" gid="4" x="401.5" y="239" width="40" height="40">
+   <properties>
+    <property name="spawn" value="prev_room"/>
+   </properties>
+  </object>
+  <object id="12" gid="20" x="560.333" y="80.3333" width="40" height="40">
+   <properties>
+    <property name="artifact" value="kings_sword"/>
+    <property name="worth" type="int" value="5000"/>
+   </properties>
+  </object>
+  <object id="14" gid="24" x="240" y="80" width="40" height="40">
+   <properties>
+    <property name="artifact" value="fishingrod"/>
+    <property name="worth" type="int" value="500"/>
+   </properties>
+  </object>
+  <object id="15" gid="14" x="720.061" y="320.242" width="40" height="40">
+   <properties>
+    <property name="trigger" value="bld3"/>
    </properties>
   </object>
  </objectgroup>

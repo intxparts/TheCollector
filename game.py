@@ -42,9 +42,6 @@ class Player:
     SOUND_DROWNING = pygame.mixer.Sound(get_asset_file('drowning.ogg'))
     SOUND_HAPPY_GRUMBLING = pygame.mixer.Sound(get_asset_file('item_collection.ogg'))
 
-    HOLE_COLLISION = pygame.sprite.collide_rect_ratio(0.70)
-    GATE_COLLISION_Y = pygame.sprite.collide_rect_ratio(0.5)
-    GATE_COLLISION_X = pygame.sprite.collide_rect_ratio(1)
     BOULDER_COLLISION = pygame.sprite.collide_circle_ratio(0.75)
 
     def __init__(self, position, id):
@@ -247,7 +244,7 @@ class Player:
                         Player.SOUND_GRUNT.play(0)
 
             for gate in level.gates:
-                if Player.GATE_COLLISION_X(self.__aabb_sprite, gate):
+                if self.__aabb.colliderect(gate.AABB):
                     self.__aabb.x -= dx
 
             for hole in level.holes:
@@ -270,7 +267,7 @@ class Player:
                     self.__aabb.y -= dy
 
             for gate in level.gates:
-                if Player.GATE_COLLISION_Y(self.__aabb_sprite, gate):
+                if self.__aabb.colliderect(gate.AABB):
                     self.__aabb.y -= dy
 
             for boulder in level.boulders:
@@ -331,7 +328,7 @@ def run_game():
     # clock for keeping track of time, ticks, and frames per second
     clock = pygame.time.Clock()
 
-    levels = [get_asset_file('level1.tmx'), get_asset_file('level2.tmx')]
+    levels = [get_asset_file('level2.tmx'), get_asset_file('level3.tmx'), get_asset_file('finalLevel.tmx')]
     level_index = 0
 
     current_level = Level(levels[level_index], prev_level=True)
@@ -495,6 +492,7 @@ class Gate(pygame.sprite.Sprite):
         self.rect = rect.copy()
         self.__name = name
         self.__original_position = rect.copy()
+        self.__current_position = rect.copy()
         self.__aabb = rect.copy()
         self.__direction = direction
         self.__move_rate = move_rate

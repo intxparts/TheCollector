@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="left-down" width="20" height="15" tilewidth="40" tileheight="40" nextobjectid="16">
+ <tileset firstgid="1" source="ancientTech.tsx"/>
+ <layer name="Tile Layer 1" width="20" height="15">
+  <data encoding="csv">
+16,16,3,3,16,16,16,16,16,16,16,3,3,8,9,3,3,16,16,16,
+16,3,2,2,3,16,2,2,2,16,16,16,3,2,2,3,16,16,3,16,
+16,3,2,2,3,16,11,2,11,16,16,16,16,2,2,16,16,3,2,3,
+16,3,2,2,3,16,16,11,16,16,16,16,3,2,16,16,16,16,3,16,
+16,3,11,2,3,16,16,2,16,16,16,16,16,2,16,16,16,16,16,16,
+16,3,2,2,3,16,16,2,16,16,16,16,16,2,16,16,2,16,16,16,
+16,16,2,2,16,16,16,2,16,16,2,2,2,11,2,2,2,16,16,16,
+16,16,2,2,16,16,2,2,2,2,2,11,2,16,16,16,2,3,16,16,
+16,16,16,2,16,16,2,16,16,16,2,2,2,16,16,16,11,2,3,16,
+16,16,16,2,16,2,11,2,2,16,16,2,16,16,16,16,16,2,16,16,
+16,16,16,2,16,2,15,2,16,16,16,2,16,16,16,16,16,2,16,16,
+16,16,16,2,16,2,2,2,16,16,11,2,16,16,16,16,16,2,16,16,
+16,16,3,2,16,16,16,16,16,16,2,16,16,16,16,16,2,2,16,16,
+16,3,3,11,2,2,2,2,2,2,2,16,16,16,16,3,2,2,3,16,
+3,3,3,3,3,16,16,16,16,16,16,16,16,16,3,3,5,6,3,3
+</data>
+ </layer>
+ <objectgroup name="Object Layer 1">
+  <object id="1" gid="17" x="80.0417" y="235.458" width="40" height="40">
+   <properties>
+    <property name="direction" type="int" value="-1"/>
+    <property name="gate" value="stash_left"/>
+    <property name="max_move_length" type="int" value="40"/>
+    <property name="move_rate" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="2" gid="17" x="120.045" y="235.455" width="40" height="40">
+   <properties>
+    <property name="direction" type="int" value="1"/>
+    <property name="gate" value="stash_right"/>
+    <property name="max_move_length" type="int" value="40"/>
+    <property name="move_rate" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="3" gid="23" x="119.667" y="79.8333" width="40" height="40">
+   <properties>
+    <property name="artifact" value="controller"/>
+    <property name="worth" type="int" value="5000"/>
+   </properties>
+  </object>
+  <object id="4" gid="14" x="280.333" y="80" width="40" height="40">
+   <properties>
+    <property name="trigger" value="main"/>
+   </properties>
+  </object>
+  <object id="5" gid="14" x="119.333" y="520.333" width="40" height="40">
+   <properties>
+    <property name="trigger" value="alpha"/>
+   </properties>
+  </object>
+  <object id="6" gid="14" x="240" y="479.667" width="40" height="40">
+   <properties>
+    <property name="timer" type="int" value="790"/>
+    <property name="trigger" value="stash_left"/>
+   </properties>
+  </object>
+  <object id="7" gid="10" x="660" y="600" width="40" height="40">
+   <properties>
+    <property name="exit" value="prev_room"/>
+   </properties>
+  </object>
+  <object id="8" gid="10" x="539" y="39.6667" width="40" height="40">
+   <properties>
+    <property name="exit" value="next_room"/>
+   </properties>
+  </object>
+  <object id="9" gid="4" x="538.667" y="79.3333" width="40" height="40">
+   <properties>
+    <property name="spawn" value="next_room"/>
+   </properties>
+  </object>
+  <object id="10" gid="4" x="659.667" y="559.667" width="40" height="40">
+   <properties>
+    <property name="spawn" value="prev_room"/>
+   </properties>
+  </object>
+  <object id="11" gid="19" x="120" y="600.667" width="40" height="40">
+   <properties>
+    <property name="boulder" value="alpha"/>
+    <property name="direction" type="int" value="-1"/>
+    <property name="max_move_length" type="int" value="280"/>
+    <property name="move_rate" type="int" value="2"/>
+   </properties>
+  </object>
+  <object id="13" gid="17" x="520" y="160.333" width="40" height="40">
+   <properties>
+    <property name="direction" type="int" value="-1"/>
+    <property name="gate" value="main"/>
+    <property name="max_move_length" type="int" value="40"/>
+    <property name="move_rate" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="14" gid="14" x="720.333" y="120" width="40" height="40">
+   <properties>
+    <property name="trigger" value="stash_right"/>
+   </properties>
+  </object>
+  <object id="15" gid="22" x="120.333" y="160.333" width="40" height="40">
+   <properties>
+    <property name="artifact" value="cheese_burger"/>
+    <property name="worth" type="int" value="5"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>
