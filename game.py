@@ -36,9 +36,8 @@ class Player:
     SPRITE_DEATH = pygame.image.load(get_asset_file('death.png'))
 
     def __init__(self, position, id):
-        self.__aabb_sprite = pygame.Surface((28, 36))
-        self.__aabb_sprite.fill(Color.STEEL_BLUE)
-        self.__aabb = self.__aabb_sprite.get_rect()
+        self.__aabb_sprite = CharBoundingBox()
+        self.__aabb = self.__aabb_sprite.rect
         self.__aabb.x = position[0]
         self.__aabb.y = position[1]
         self.__id = id
@@ -141,7 +140,7 @@ class Player:
         pass
 
     def update(self, level):
-
+        self.__aabb_sprite.update(self.__aabb)
         if not self.is_alive:
             if self.__death_frames > 120:
                 self.__death_frames = 0
@@ -180,6 +179,15 @@ class Player:
                     if spikes.is_extended:
                         self.is_alive = False
 
+            hole_collision = pygame.sprite.collide_circle_ratio(0.67)
+            for hole in level.holes:
+                if hole_collision(self.__aabb_sprite, hole):
+                    self.is_alive = False
+
+            for water in level.water:
+                if hole_collision(self.__aabb_sprite, water):
+                    self.is_alive = False
+
             for button in level.buttons:
                 if self.__aabb.colliderect(button.AABB):
                     button.activate()
@@ -194,6 +202,14 @@ class Player:
                     spikes.is_triggered = True
                     if spikes.is_extended:
                         self.is_alive = False
+
+            for hole in level.holes:
+                if hole_collision(self.__aabb_sprite, hole):
+                    self.is_alive = False
+
+            for water in level.water:
+                if hole_collision(self.__aabb_sprite, water):
+                    self.is_alive = False
 
             for button in level.buttons:
                 if self.__aabb.colliderect(button.AABB):
@@ -239,7 +255,7 @@ def run_game():
             button.render(display)
 
         # debug purposes
-        display.blit(player.aabb_sprite, player.position)
+        display.blit(player.aabb_sprite.image, player.position)
 
         display.blit(player.current_sprite, player.position)
 
@@ -419,6 +435,8 @@ class Level:
         self.blockers = []
         self.spikes = []
         self.buttons = []
+        self.holes = []
+        self.water = []
         self.spawn_location = None
         self._prev_level = prev_level
         self.entrance = None
@@ -440,8 +458,23 @@ class Level:
                     tile_props = self.tmx_data.get_tile_properties_by_gid(gid)
                     if tile_props and 'passable' in tile_props and tile_props['passable'] == 'false':
                         self.blockers.append(self.__create_rect_from_tile_props(x, y, tile_props))
-                    if tile_props and 'trap' in tile_props and tile_props['trap'] == 'spikes':
-                        self.spikes.append(Spikes(self.__create_rect_from_tile_props(x, y, tile_props)))
+                    if tile_props and 'trap' in tile_props:
+                        if tile_props['trap'] == 'spikes':
+                            self.spikes.append(Spikes(self.__create_rect_from_tile_props(x, y, tile_props)))
+                        if tile_props['trap'] == 'hole':
+                            self.holes.append(
+                                Hole(
+                                    self.tmx_data.get_tile_image_by_gid(gid),
+                                    self.__create_rect_from_tile_props(x, y, tile_props)
+                                )
+                            )
+                        if tile_props['trap'] == 'water':
+                            self.water.append(
+                                Hole(
+                                    self.tmx_data.get_tile_image_by_gid(gid),
+                                    self.__create_rect_from_tile_props(x, y, tile_props)
+                                )
+                            )
             if isinstance(layer, pytmx.TiledObjectGroup):
                 for tile_object in layer:
                     if 'button' in tile_object.properties:
@@ -493,6 +526,25 @@ class Level:
         temp_surface = pygame.Surface(self.size)
         self.render(temp_surface)
         return temp_surface
+
+class CharBoundingBox(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((28, 36))
+        self.image.fill(Color.STEEL_BLUE)
+        self.rect = self.image.get_rect()
+
+    def update(self, rect):
+        self.rect.x = rect.x
+        self.rect.y = rect.y
+
+class Hole(pygame.sprite.Sprite):
+    def __init__(self, image, rect):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = image
+        self.rect = rect
+
+
 
 
 if __name__ == '__main__':
