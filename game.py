@@ -412,6 +412,7 @@ def run_game():
 
 class Gate(pygame.sprite.Sprite):
     SPRITE_GATE = pygame.image.load(get_asset_file('gate.png'))
+    SOUND_GRINDING = pygame.mixer.Sound(get_asset_file('door_open.ogg'))
 
     def __init__(self, rect, name, direction, move_rate, max_move_length):
         pygame.sprite.Sprite.__init__(self)
@@ -442,10 +443,12 @@ class Gate(pygame.sprite.Sprite):
         distance = abs(self.__aabb.x - self.__original_position.x)
         if is_powered:
             if distance < self.__max_move_length:
+                Gate.SOUND_GRINDING.play(0)
                 self.__aabb.x += self.__direction*self.__move_rate
         else:
             # print('distance = ', distance)
             if self.__aabb.x != self.__original_position.x:
+                Gate.SOUND_GRINDING.play(0)
                 self.__aabb.x += -1*self.__direction*self.__move_rate
         self.rect.x = self.__aabb.x
         self.rect.y = self.__aabb.y
