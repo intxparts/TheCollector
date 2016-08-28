@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="left-down" width="20" height="15" tilewidth="40" tileheight="40" nextobjectid="23">
- <tileset firstgid="1" name="ancientTech" tilewidth="40" tileheight="40" tilecount="9" columns="0">
+<map version="1.0" orientation="orthogonal" renderorder="left-down" width="20" height="15" tilewidth="40" tileheight="40" nextobjectid="29">
+ <tileset firstgid="1" name="ancientTech" tilewidth="40" tileheight="40" tilecount="11" columns="0">
   <tile id="1">
    <properties>
     <property name="passable" type="bool" value="true"/>
@@ -36,6 +36,15 @@
     <property name="trap" value="spikes"/>
    </properties>
    <image width="40" height="40" source="floor_spike_retracted.png"/>
+  </tile>
+  <tile id="12">
+   <image width="40" height="40" source="button_pressed.png"/>
+  </tile>
+  <tile id="13">
+   <properties>
+    <property name="button" value="trigger"/>
+   </properties>
+   <image width="40" height="40" source="button_unpressed.png"/>
   </tile>
  </tileset>
  <layer name="Tile Layer 1" width="20" height="15">
@@ -79,6 +88,17 @@
   <object id="22" gid="10" x="379" y="600" width="40" height="40">
    <properties>
     <property name="exit" value="prev_room"/>
+   </properties>
+  </object>
+  <object id="27" gid="14" x="440" y="520" width="40" height="40">
+   <properties>
+    <property name="timer" type="int" value="500"/>
+    <property name="trigger" value="something"/>
+   </properties>
+  </object>
+  <object id="28" gid="14" x="360" y="480" width="40" height="40">
+   <properties>
+    <property name="trigger" value="somethingelse"/>
    </properties>
   </object>
  </objectgroup>

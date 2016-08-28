@@ -180,6 +180,10 @@ class Player:
                     if spikes.is_extended:
                         self.is_alive = False
 
+            for button in level.buttons:
+                if self.__aabb.colliderect(button.AABB):
+                    button.activate()
+
             self.__aabb.y += dy
             for blocker in level.blockers:
                 if self.__aabb.colliderect(blocker):
@@ -190,6 +194,10 @@ class Player:
                     spikes.is_triggered = True
                     if spikes.is_extended:
                         self.is_alive = False
+
+            for button in level.buttons:
+                if self.__aabb.colliderect(button.AABB):
+                    button.activate()
 
             if self.__aabb.colliderect(level.entrance):
                 return 'prev_level'
@@ -227,10 +235,14 @@ def run_game():
         display.fill(Color.BLACK)
         display.blit(map_surface, map_rect)
 
+        for button in current_level.buttons:
+            button.render(display)
+
         # debug purposes
         display.blit(player.aabb_sprite, player.position)
 
         display.blit(player.current_sprite, player.position)
+
         for spikes in current_level.spikes:
             spikes.render(display)
 
@@ -285,6 +297,8 @@ def run_game():
         transition = player.update(current_level)
         for spikes in current_level.spikes:
             spikes.update()
+        for button in current_level.buttons:
+            button.update()
         if transition:
             if transition == 'reset_level':
                 current_level = Level(levels[level_index], prev_level=True)
@@ -313,6 +327,39 @@ def run_game():
 
     # shuts down all pygame modules - IDLE friendly
     pygame.quit()
+
+
+class Button:
+    SPRITE_PRESSED = pygame.image.load(get_asset_file('button_pressed.png'))
+    SPRITE_UNPRESSED = pygame.image.load(get_asset_file('button_unpressed.png'))
+
+    def __init__(self, rect, reset_time, trigger_object):
+        self.__activated = False
+        self.__timer_frames = 0
+        self.__reset_time = reset_time
+        self.__aabb = rect
+        self.trigger_object = trigger_object
+
+    @property
+    def AABB(self):
+        return self.__aabb
+
+    def render(self, display):
+        if self.__activated:
+            display.blit(Button.SPRITE_PRESSED, (self.__aabb.x, self.__aabb.y))
+        else:
+            display.blit(Button.SPRITE_UNPRESSED, (self.__aabb.x, self.__aabb.y))
+
+    def activate(self):
+        self.__activated = True
+
+    def update(self):
+        if self.__activated and self.__reset_time > -1:
+            if self.__timer_frames > self.__reset_time:
+                self.__activated = False
+                self.__timer_frames = 0
+            else:
+                self.__timer_frames += 1
 
 
 class Spikes:
@@ -364,7 +411,6 @@ class Spikes:
                 self.__frames += 1
 
 
-
 class Level:
     def __init__(self, filename, prev_level):
         tm = pytmx.load_pygame(filename, pixelalpha=True)
@@ -372,11 +418,20 @@ class Level:
         self.tmx_data = tm
         self.blockers = []
         self.spikes = []
+        self.buttons = []
         self.spawn_location = None
         self._prev_level = prev_level
         self.entrance = None
         self.exit = None
         self._load_game_objects()
+
+    def __create_rect_from_tile_props(self, x, y, tile_props):
+        return pygame.Rect(
+            x * self.tmx_data.tilewidth,
+            y * self.tmx_data.tileheight,
+            int(tile_props['height']),
+            int(tile_props['width'])
+        )
 
     def _load_game_objects(self):
         for layer in self.tmx_data.visible_layers:
@@ -384,25 +439,14 @@ class Level:
                 for x, y, gid in layer:
                     tile_props = self.tmx_data.get_tile_properties_by_gid(gid)
                     if tile_props and 'passable' in tile_props and tile_props['passable'] == 'false':
-                        self.blockers.append(
-                            pygame.Rect(
-                                x * self.tmx_data.tilewidth,
-                                y * self.tmx_data.tileheight,
-                                int(tile_props['height']),
-                                int(tile_props['width'])
-                            )
-                        )
+                        self.blockers.append(self.__create_rect_from_tile_props(x, y, tile_props))
                     if tile_props and 'trap' in tile_props and tile_props['trap'] == 'spikes':
-                        self.spikes.append(
-                            Spikes(pygame.Rect(
-                                x * self.tmx_data.tilewidth,
-                                y * self.tmx_data.tileheight,
-                                int(tile_props['height']),
-                                int(tile_props['width'])
-                            ))
-                        )
+                        self.spikes.append(Spikes(self.__create_rect_from_tile_props(x, y, tile_props)))
             if isinstance(layer, pytmx.TiledObjectGroup):
                 for tile_object in layer:
+                    if 'button' in tile_object.properties:
+                        timer = int(tile_object.properties['timer']) if 'timer' in tile_object.properties else -1
+                        self.buttons.append(Button(self.__create_rect_from_tile_object(tile_object), timer, tile_object.properties['trigger']))
                     if 'spawn' in tile_object.properties:
                         if self._prev_level:
                             if tile_object.properties['spawn'] == 'prev_room':
