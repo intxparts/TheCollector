@@ -2,6 +2,7 @@ import pygame
 import pytmx
 import os
 
+pygame.init()
 
 ASSETS_FOLDER = os.path.join(os.getcwd(), 'Assets')
 
@@ -34,6 +35,10 @@ class Player:
     SPRITE_RIGHT_WALK2 = pygame.image.load(get_asset_file('char_right_walk2.png'))
 
     SPRITE_DEATH = pygame.image.load(get_asset_file('death.png'))
+
+    SOUND_GRUNT = pygame.mixer.Sound(get_asset_file('grunt.ogg'))
+    SOUND_SCREAM = pygame.mixer.Sound(get_asset_file('scream.ogg'))
+    SOUND_DROWNING = pygame.mixer.Sound(get_asset_file('drowning.ogg'))
 
     HOLE_COLLISION = pygame.sprite.collide_rect_ratio(0.70)
     GATE_COLLISION_Y = pygame.sprite.collide_rect_ratio(0.5)
@@ -147,7 +152,7 @@ class Player:
     def update(self, level):
         self.__aabb_sprite.update(self.__aabb)
         if not self.is_alive:
-            if self.__death_frames > 120:
+            if self.__death_frames > 160:
                 self.__death_frames = 0
                 return 'reset_level'
             else:
@@ -169,12 +174,14 @@ class Player:
                 if Player.BOULDER_COLLISION(self.__aabb_sprite, boulder):
                     if boulder.is_moving:
                         self.is_alive = False
+                        Player.SOUND_GRUNT.play(0)
 
         for spikes in level.spikes:
             if self.__aabb.colliderect(spikes.AABB):
                 spikes.is_triggered = True
                 if spikes.is_extended:
                     self.is_alive = False
+                    Player.SOUND_GRUNT.play(0)
 
         is_moving = moving_vector[0] != 0 or moving_vector[1] != 0
 
@@ -193,8 +200,18 @@ class Player:
             for boulder in level.boulders:
                 if boulder.is_activated:
                     if Player.BOULDER_COLLISION(self.__aabb_sprite, boulder):
-                        if not boulder.is_moving:
+                        if boulder.is_moving:
+                            self.is_alive = False
+                            Player.SOUND_GRUNT.play(0)
+                        else:
                             self.__aabb.x -= dx
+
+            for spikes in level.spikes:
+                if self.__aabb.colliderect(spikes.AABB):
+                    spikes.is_triggered = True
+                    if spikes.is_extended:
+                        self.is_alive = False
+                        Player.SOUND_GRUNT.play(0)
 
             for gate in level.gates:
                 if Player.GATE_COLLISION_X(self.__aabb_sprite, gate):
@@ -203,10 +220,12 @@ class Player:
             for hole in level.holes:
                 if self.__aabb.colliderect(hole.AABB):
                     self.is_alive = False
+                    Player.SOUND_SCREAM.play(0)
 
             for water in level.water:
                 if self.__aabb.colliderect(water.AABB):
                     self.is_alive = False
+                    Player.SOUND_DROWNING.play(0)
 
             for button in level.buttons:
                 if self.__aabb.colliderect(button.AABB):
@@ -234,14 +253,17 @@ class Player:
                     spikes.is_triggered = True
                     if spikes.is_extended:
                         self.is_alive = False
+                        Player.SOUND_GRUNT.play(0)
 
             for hole in level.holes:
                 if self.__aabb.colliderect(hole.AABB):
                     self.is_alive = False
+                    Player.SOUND_SCREAM.play(0)
 
             for water in level.water:
                 if self.__aabb.colliderect(water.AABB):
                     self.is_alive = False
+                    Player.SOUND_DROWNING.play(0)
 
             for button in level.buttons:
                 if self.__aabb.colliderect(button.AABB):
@@ -258,6 +280,7 @@ class Player:
 
 
 def run_game():
+
     # initialize the display for drawing to the screen
     pygame.display.init()
     display = pygame.display.set_mode([800, 600], pygame.DOUBLEBUF, 32)
@@ -431,6 +454,9 @@ class Button:
     SPRITE_PRESSED = pygame.image.load(get_asset_file('button_pressed.png'))
     SPRITE_UNPRESSED = pygame.image.load(get_asset_file('button_unpressed.png'))
 
+    SOUND_ACTIVATE = pygame.mixer.Sound(get_asset_file('pressure_plate.ogg'))
+    SOUND_RESET = pygame.mixer.Sound(get_asset_file('plate_reset.ogg'))
+
     def __init__(self, rect, reset_time, trigger_object):
         self.__activated = False
         self.__timer_frames = 0
@@ -458,11 +484,15 @@ class Button:
             display.blit(Button.SPRITE_UNPRESSED, (self.__sprite_position.x, self.__sprite_position.y))
 
     def activate(self):
+        if not self.__activated:
+            Button.SOUND_ACTIVATE.play(0)
+
         self.__activated = True
 
     def update(self):
         if self.__activated and self.__reset_time > -1:
             if self.__timer_frames > self.__reset_time:
+                Button.SOUND_RESET.play(0)
                 self.__activated = False
                 self.__timer_frames = 0
             else:
@@ -472,7 +502,7 @@ class Button:
 class Spikes:
     EXTENDED_SPIKES_OFFSET = 20
     EXTENDED_SPIKES = pygame.image.load(get_asset_file('floor_spike_extended.png'))
-
+    SPIKES_EXTENDING_SOUND = pygame.mixer.Sound(get_asset_file('spears_extended.ogg'))
     def __init__(self, rect):
         self.__aabb = rect
         self.__is_triggered = False
@@ -503,6 +533,7 @@ class Spikes:
 
         if self.__is_triggered:
             if self.__frames > 37:
+                Spikes.SPIKES_EXTENDING_SOUND.play(0)
                 self.__is_triggered = False
                 self.__is_extended = True
                 self.__frames = 0
@@ -642,8 +673,11 @@ class Boulder(pygame.sprite.Sprite):
 
     SPRITES = [SPRITE_BOULDER1, SPRITE_BOULDER3, SPRITE_BOULDER2, SPRITE_BOULDER4]
 
+    SOUND_ROLLING = pygame.mixer.Sound(get_asset_file('rolling.ogg'))
+
     def __init__(self, rect, name, direction, move_rate, max_move_length):
         pygame.sprite.Sprite.__init__(self)
+        Boulder.SOUND_ROLLING.stop()
         self.rect = rect.copy()
         self.__original_position = rect.copy()
         self.__aabb = rect.copy()
@@ -680,10 +714,12 @@ class Boulder(pygame.sprite.Sprite):
         distance = abs(self.__aabb.y - self.__original_position.y)
         if self.__is_activated:
             if distance < self.__max_move_length:
+                Boulder.SOUND_ROLLING.play(-1)
                 self.__is_moving = True
                 self.__aabb.y += self.__direction*self.__move_rate
             else:
                 self.__is_moving = False
+                Boulder.SOUND_ROLLING.stop()
 
         if self.__is_moving:
             if self.__frames > 80/self.__move_rate:
