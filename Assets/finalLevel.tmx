@@ -88,7 +88,11 @@
     <property name="move_rate" type="int" value="1"/>
    </properties>
   </object>
-  <object id="19" gid="14" x="37" y="158" width="40" height="40"/>
+  <object id="19" gid="14" x="40.3333" y="159.333" width="40" height="40">
+   <properties>
+    <property name="trigger" value="bld1"/>
+   </properties>
+  </object>
   <object id="20" gid="19" x="39.5" y="440" width="40" height="40">
    <properties>
     <property name="boulder" value="bld1"/>
