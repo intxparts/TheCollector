@@ -83,7 +83,7 @@
    <properties>
     <property name="boulder" value="alpha"/>
     <property name="direction" type="int" value="-1"/>
-    <property name="max_move_length" type="int" value="280"/>
+    <property name="max_move_length" type="int" value="320"/>
     <property name="move_rate" type="int" value="2"/>
    </properties>
   </object>

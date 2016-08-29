@@ -4,6 +4,7 @@ import os
 
 pygame.init()
 
+
 ASSETS_FOLDER = os.path.join(os.getcwd(), 'Assets')
 
 
@@ -69,10 +70,6 @@ class Player:
             [Player.SPRITE_RIGHT_STAND, Player.SPRITE_RIGHT_WALK1, Player.SPRITE_RIGHT_STAND, Player.SPRITE_RIGHT_WALK2],
             [Player.SPRITE_DEATH]
             ]
-
-    def reset_all(self, position):
-        self.artifacts_collected = []
-        self.reset(position)
 
     def reset(self, position):
         self.__aabb_sprite = CharBoundingBox()
@@ -313,6 +310,8 @@ class Player:
 
 
 def run_game():
+    pygame.display.set_caption('The Collector - Ludum Dare 36 - Theme: Ancient Technology')
+    pygame.display.set_icon(Player.SPRITE_DEATH)
 
     # initialize the display for drawing to the screen
     pygame.display.init()
@@ -327,11 +326,12 @@ def run_game():
     levels = [get_asset_file('level2.tmx'), get_asset_file('level3.tmx'), get_asset_file('finalLevel.tmx')]
     level_index = 0
 
-    current_level = Level(levels[level_index], prev_level=True)
+    player = Player((0, 0), 'player_main')
+    current_level = Level(levels[level_index], prev_level=True, player_artifacts=player.artifacts_collected)
     map_surface = current_level.make_map()
     map_rect = map_surface.get_rect()
 
-    player = Player((current_level.spawn_location.x, current_level.spawn_location.y), 'player_main')
+    player.reset((current_level.spawn_location.x, current_level.spawn_location.y))
     end_game = False
     end_game_state = 'something_wrong'
     done = False
@@ -419,10 +419,10 @@ def run_game():
             boulder.update(current_level.buttons)
         if transition:
             if transition == 'reset_level':
-                current_level = Level(levels[level_index], prev_level=True)
+                current_level = Level(levels[level_index], prev_level=True, player_artifacts=player.artifacts_collected)
                 map_surface = current_level.make_map()
                 map_rect = map_surface.get_rect()
-                player.reset_all((current_level.spawn_location.x, current_level.spawn_location.y))
+                player.reset((current_level.spawn_location.x, current_level.spawn_location.y))
             elif transition == 'prev_level' or transition == 'next_level':
                 prev_level = True
                 if transition == 'prev_level':
@@ -440,7 +440,7 @@ def run_game():
                     end_game_state = 'victory'
                     done = True
                 else:
-                    current_level = Level(levels[level_index], prev_level=prev_level)
+                    current_level = Level(levels[level_index], prev_level=prev_level, player_artifacts=player.artifacts_collected)
                     map_surface = current_level.make_map()
                     map_rect = map_surface.get_rect()
                     player.reset((current_level.spawn_location.x, current_level.spawn_location.y))
@@ -455,7 +455,7 @@ def run_game():
             display.blit(EARLY_ENDING, (0, 0))
         elif end_game_state == 'victory':
             display.blit(VICTORY, (0, 0))
-            show_case_x = 0
+            show_case_x = 120
             show_case_y = 400
             for artifact in player.artifacts_collected:
                 display.blit(artifact.image, (show_case_x, show_case_y))
@@ -621,7 +621,7 @@ class Spikes:
 
 
 class Level:
-    def __init__(self, filename, prev_level):
+    def __init__(self, filename, prev_level, player_artifacts):
         tm = pytmx.load_pygame(filename, pixelalpha=True)
         self.size = tm.width * tm.tilewidth, tm.height * tm.tileheight
         self.tmx_data = tm
@@ -637,7 +637,7 @@ class Level:
         self._prev_level = prev_level
         self.entrance = None
         self.exit = None
-        self._load_game_objects()
+        self._load_game_objects(player_artifacts)
 
     def __create_rect_from_tile_props(self, x, y, tile_props):
         return pygame.Rect(
@@ -647,7 +647,7 @@ class Level:
             int(tile_props['width'])
         )
 
-    def _load_game_objects(self):
+    def _load_game_objects(self, player_artifacts):
         for layer in self.tmx_data.visible_layers:
             if isinstance(layer, pytmx.TiledTileLayer):
                 for x, y, gid in layer:
@@ -675,8 +675,18 @@ class Level:
                 for tile_object in layer:
                     if 'artifact' in tile_object.properties:
                         name = tile_object.properties['artifact']
-                        worth = int(tile_object.properties['worth'])
-                        self.artifacts.append(Artifact(name, self.__create_rect_from_tile_object(tile_object), tile_object.image, worth))
+                        if len(player_artifacts) == 0:
+                            worth = int(tile_object.properties['worth'])
+                            self.artifacts.append(Artifact(name, self.__create_rect_from_tile_object(tile_object), tile_object.image, worth))
+                        else:
+                            add_art = True
+                            for artifact in player_artifacts:
+                                if artifact.name == name:
+                                    add_art = False
+                                    break
+                            if add_art:
+                                worth = int(tile_object.properties['worth'])
+                                self.artifacts.append(Artifact(name, self.__create_rect_from_tile_object(tile_object), tile_object.image, worth))
                     if 'boulder' in tile_object.properties:
                         direction = int(tile_object.properties['direction'])
                         move_rate = int(tile_object.properties['move_rate'])
