@@ -70,6 +70,10 @@ class Player:
             [Player.SPRITE_DEATH]
             ]
 
+    def reset_all(self, position):
+        self.artifacts_collected = []
+        self.reset(position)
+
     def reset(self, position):
         self.__aabb_sprite = CharBoundingBox()
         self.__aabb = self.__aabb_sprite.rect
@@ -151,12 +155,6 @@ class Player:
             self.__sprite_group_index = 4
         self.__is_alive = value
 
-    def has_artifact(self, artifact):
-        for artifact in self.artifacts_collected:
-            if artifact.name == artifact.name:
-                return True
-        return False
-
     @property
     def current_sprite(self):
         return self.__sprites[self.__sprite_group_index][self.__sprite_index]
@@ -230,8 +228,7 @@ class Player:
                             self.__aabb.x -= dx
 
             for artifact in level.artifacts:
-                if not artifact.is_collected and not self.has_artifact(artifact) and \
-                        self.__aabb.colliderect(artifact.AABB):
+                if not artifact.is_collected and self.__aabb.colliderect(artifact.AABB):
                     Player.SOUND_HAPPY_GRUMBLING.play(0)
                     artifact.is_collected = True
                     self.artifacts_collected.append(artifact)
@@ -279,8 +276,7 @@ class Player:
                             self.__aabb.y -= dy
 
             for artifact in level.artifacts:
-                if not artifact.is_collected and not self.has_artifact(artifact) and \
-                        self.__aabb.colliderect(artifact.AABB):
+                if not artifact.is_collected and self.__aabb.colliderect(artifact.AABB):
                     Player.SOUND_HAPPY_GRUMBLING.play(0)
                     artifact.is_collected = True
                     self.artifacts_collected.append(artifact)
@@ -354,8 +350,7 @@ def run_game():
         # display.blit(player.aabb_sprite.image, player.position)
 
         for artifact in current_level.artifacts:
-            if not player.has_artifact(artifact):
-                artifact.render(display)
+            artifact.render(display)
 
         display.blit(player.current_sprite, player.position)
 
@@ -427,7 +422,7 @@ def run_game():
                 current_level = Level(levels[level_index], prev_level=True)
                 map_surface = current_level.make_map()
                 map_rect = map_surface.get_rect()
-                player.reset((current_level.spawn_location.x, current_level.spawn_location.y))
+                player.reset_all((current_level.spawn_location.x, current_level.spawn_location.y))
             elif transition == 'prev_level' or transition == 'next_level':
                 prev_level = True
                 if transition == 'prev_level':

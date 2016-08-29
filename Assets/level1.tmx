@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="left-down" width="20" height="15" tilewidth="40" tileheight="40" nextobjectid="36">
+<map version="1.0" orientation="orthogonal" renderorder="left-down" width="20" height="15" tilewidth="40" tileheight="40" nextobjectid="37">
  <tileset firstgid="1" source="ancientTech.tsx"/>
  <layer name="Tile Layer 1" width="20" height="15">
   <data encoding="csv">
@@ -85,6 +85,12 @@
    <properties>
     <property name="artifact" value="kings_sword"/>
     <property name="worth" type="int" value="1000"/>
+   </properties>
+  </object>
+  <object id="36" gid="21" x="320.333" y="519.667" width="40" height="40">
+   <properties>
+    <property name="artifact" value="boomerang"/>
+    <property name="worth" type="int" value="10"/>
    </properties>
   </object>
  </objectgroup>

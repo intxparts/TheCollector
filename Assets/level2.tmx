@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="left-down" width="20" height="15" tilewidth="40" tileheight="40" nextobjectid="16">
+<map version="1.0" orientation="orthogonal" renderorder="left-down" width="20" height="15" tilewidth="40" tileheight="40" nextobjectid="18">
  <tileset firstgid="1" source="ancientTech.tsx"/>
  <layer name="Tile Layer 1" width="20" height="15">
   <data encoding="csv">
-3,3,3,3,3,3,3,16,16,16,16,3,3,3,3,3,3,16,8,9,
-3,3,3,3,16,3,2,2,11,11,2,16,3,3,2,2,3,2,2,2,
-3,2,2,11,16,16,2,11,16,3,2,16,16,3,2,2,3,16,2,2,
-16,2,16,2,16,16,16,16,16,16,2,16,16,3,2,3,16,16,11,16,
+3,3,3,3,3,16,16,16,16,16,16,3,3,3,3,3,3,3,8,9,
+3,3,3,3,16,16,2,2,11,11,2,3,2,2,2,2,3,2,2,2,
+3,2,2,11,16,16,2,11,16,3,2,3,2,3,2,2,3,16,2,2,
+16,2,16,2,16,16,16,16,16,16,2,2,2,3,2,3,16,16,11,16,
 16,2,16,2,16,16,16,3,3,16,2,16,16,16,2,16,16,16,2,16,
 16,2,16,2,3,16,16,3,2,2,2,2,11,16,2,2,2,2,2,16,
 16,2,16,2,16,16,16,16,2,3,15,3,2,16,16,16,16,16,11,16,
@@ -83,7 +83,7 @@
     <property name="spawn" value="next_room"/>
    </properties>
   </object>
-  <object id="11" gid="4" x="401.5" y="239" width="40" height="40">
+  <object id="11" gid="4" x="18.8333" y="519.667" width="40" height="40">
    <properties>
     <property name="spawn" value="prev_room"/>
    </properties>
@@ -103,6 +103,20 @@
   <object id="15" gid="14" x="720.061" y="320.242" width="40" height="40">
    <properties>
     <property name="trigger" value="bld3"/>
+   </properties>
+  </object>
+  <object id="16" gid="17" x="480" y="119.75" width="40" height="40">
+   <properties>
+    <property name="direction" type="int" value="-1"/>
+    <property name="gate" value="backdoor"/>
+    <property name="max_move_length" type="int" value="40"/>
+    <property name="move_rate" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="17" gid="14" x="480" y="79.75" width="40" height="40">
+   <properties>
+    <property name="timer" type="int" value="100"/>
+    <property name="trigger" value="backdoor"/>
    </properties>
   </object>
  </objectgroup>
