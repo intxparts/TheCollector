@@ -105,9 +105,9 @@
     <property name="trigger" value="bld3"/>
    </properties>
   </object>
-  <object id="16" gid="17" x="480" y="119.75" width="40" height="40">
+  <object id="16" gid="17" x="480" y="124.083" width="40" height="40">
    <properties>
-    <property name="direction" type="int" value="-1"/>
+    <property name="direction" type="int" value="1"/>
     <property name="gate" value="backdoor"/>
     <property name="max_move_length" type="int" value="40"/>
     <property name="move_rate" type="int" value="1"/>
@@ -115,7 +115,7 @@
   </object>
   <object id="17" gid="14" x="480" y="79.75" width="40" height="40">
    <properties>
-    <property name="timer" type="int" value="100"/>
+    <property name="timer" type="int" value="250"/>
     <property name="trigger" value="backdoor"/>
    </properties>
   </object>
