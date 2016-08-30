@@ -319,6 +319,8 @@ def run_game():
 
     # initialize the mixer for sound to work
     pygame.mixer.init()
+    pygame.mixer.music.load(get_asset_file('background_music.ogg'))
+    pygame.mixer.music.play(-1)
 
     # clock for keeping track of time, ticks, and frames per second
     clock = pygame.time.Clock()
@@ -375,16 +377,12 @@ def run_game():
                     if event.key == pygame.K_ESCAPE:
                         done = True
                     if event.key == pygame.K_w:
-                        print('moving up')
                         player.moving_up = True
                     if event.key == pygame.K_s:
-                        print('moving down')
                         player.moving_down = True
                     if event.key == pygame.K_a:
-                        print('moving left')
                         player.moving_left = True
                     if event.key == pygame.K_d:
-                        print('moving right')
                         player.moving_right = True
                     if event.key == pygame.K_LSHIFT:
                         player.is_running = True
@@ -394,16 +392,12 @@ def run_game():
                 if event.type == pygame.KEYUP:
 
                     if event.key == pygame.K_w:
-                        print('no longer moving up')
                         player.moving_up = False
                     if event.key == pygame.K_s:
-                        print('no longer moving down')
                         player.moving_down = False
                     if event.key == pygame.K_a:
-                        print('no longer moving left')
                         player.moving_left = False
                     if event.key == pygame.K_d:
-                        print('no longer moving right')
                         player.moving_right = False
                     if event.key == pygame.K_LSHIFT:
                         player.is_running = False
