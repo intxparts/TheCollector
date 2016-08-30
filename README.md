@@ -1,5 +1,7 @@
 # Ludum Dare 36
 
+![The Collector](https://raw.githubusercontent.com/intxparts/ludumDare36/master/Assets/death.png) 
+
 ## The Collector
 
 - 2D top down dungeon crawler
